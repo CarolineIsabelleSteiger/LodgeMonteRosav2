@@ -1474,7 +1474,11 @@ function droneShow(i){
   if(nd) nd.style.transform=`translate(-50%,-100%) rotate(${s.dir}deg)`;
   document.querySelectorAll('.dthumb').forEach((el,j)=>{
     el.classList.toggle('on',j===i);
-    if(j===i) el.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
+    if(j===i){
+      // Scroll thumbnail strip horizontally only - never use scrollIntoView (causes page jump)
+      const strip=document.getElementById('drone-thumbs');
+      if(strip) strip.scrollLeft=el.offsetLeft-strip.offsetWidth/2+el.offsetWidth/2;
+    }
   });
 }
 
@@ -1508,19 +1512,21 @@ function droneTo(i){ clearInterval(dTimer); droneShow(i); if(dPlay){ dTimer=setI
 
 // ── NAV SCROLL ──────────────────────────────────
 let _scrolling=false;
+let _activeSection='hero';
 function goTo(id){
   const el=document.getElementById(id);
   if(!el) return;
-  // Lock scroll spy for 1.5 seconds
+  _activeSection=id;
+  // Lock scroll spy for 2 seconds
   _scrolling=true;
   clearTimeout(window._scrollTimer);
-  window._scrollTimer=setTimeout(()=>{_scrolling=false;},1500);
+  window._scrollTimer=setTimeout(()=>{_scrolling=false;},2000);
   // Set active nav immediately
   document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active'));
   const nl=document.getElementById('nl-'+id);
   if(nl)nl.classList.add('active');
-  // Scroll to section
-  const top=el.getBoundingClientRect().top+window.pageYOffset-65;
+  // Scroll using offsetTop for reliability
+  const top=el.offsetTop-65;
   window.scrollTo({top:top,behavior:'smooth'});
 }
 window.addEventListener('scroll',()=>{
