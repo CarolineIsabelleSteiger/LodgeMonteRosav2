@@ -1,0 +1,1754 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Lodge Monte Rosa — Luxury Alpine Escape · Grächen Wallis</title>
+<meta name="description" content="Exklusives Ferienchalet in Grächen, Wallis. Private Sauna, Alpenpanorama, 3 Doppelzimmer + Kinderzimmer. Airbnb Gäste-Favorit 5.0★">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='2' fill='%231e2b1f'/><polygon points='16,5 5,25 27,25' fill='none' stroke='%23c9a84c' stroke-width='1.5'/><polygon points='16,5 11,16 21,16' fill='rgba(201,168,76,.3)'/><text x='16' y='31' text-anchor='middle' font-family='Georgia,serif' font-size='7' fill='%23c9a84c'>LMR</text></svg>">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --gold:#c9a84c;--gl:#e8c97d;--dark:#0c1410;--forest:#1a2b1c;
+  --snow:#fff;--gray:#8a8278;
+  --serif:'Cormorant Garamond',Georgia,serif;
+  --sans:'Lato',sans-serif;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--dark);color:var(--snow);overflow-x:hidden}
+img{display:block;max-width:100%}
+a{text-decoration:none;color:inherit}
+button{cursor:pointer;font-family:var(--sans)}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:.4}50%{opacity:.9}}
+@keyframes blip{0%,100%{opacity:1}50%{opacity:.2}}
+@keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* ════════════════════════════════════
+   LANDING SCREEN
+════════════════════════════════════ */
+#landing{
+  position:fixed;inset:0;z-index:9000;
+  background:#000;overflow:hidden;cursor:pointer;
+}
+#landing-bg{
+  position:absolute;inset:0;width:100%;height:100%;
+  object-fit:cover;object-position:center 40%;
+  filter:grayscale(100%) brightness(.85) contrast(1.05);
+  transform:scale(1.05);
+  transition:transform 3.5s ease-in, filter 3.5s ease-in;
+}
+#landing-vignette{
+  position:absolute;inset:0;
+  background:radial-gradient(ellipse at center,transparent 25%,rgba(0,0,0,.2) 55%,rgba(0,0,0,.7) 100%);
+  z-index:1
+}
+#landing-content{
+  position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  z-index:2;text-align:center;pointer-events:none;
+}
+.l-eye{
+  font-size:.62rem;font-weight:700;letter-spacing:.4em;text-transform:uppercase;
+  color:rgba(201,168,76,.75);margin-bottom:1.6rem;
+  opacity:0;animation:fadeUp .8s .5s ease forwards;
+}
+#l-coords{
+  font-family:var(--serif);font-style:italic;
+  font-size:clamp(1.2rem,3vw,2.2rem);font-weight:300;
+  color:rgba(255,255,255,.88);letter-spacing:.1em;line-height:1.6;
+  pointer-events:all;cursor:pointer;
+  opacity:0;animation:fadeUp .8s .8s ease forwards;
+  transition:color .3s,text-shadow .3s;
+}
+#l-coords:hover{color:#e8c97d;text-shadow:0 0 40px rgba(201,168,76,.4)}
+.l-alt{
+  font-size:.58rem;font-weight:300;letter-spacing:.28em;text-transform:uppercase;
+  color:rgba(255,255,255,.35);margin-top:1.2rem;
+  opacity:0;animation:fadeUp .8s 1.1s ease forwards;
+}
+.l-hint{
+  margin-top:2.5rem;font-size:.54rem;font-weight:700;
+  letter-spacing:.26em;text-transform:uppercase;
+  color:rgba(201,168,76,.5);pointer-events:all;cursor:pointer;
+  opacity:0;animation:fadeUp .8s 1.5s ease forwards,pulse 2.5s 2.5s infinite;
+}
+.l-hint-line{width:1px;height:20px;background:linear-gradient(to bottom,rgba(201,168,76,.5),transparent);margin:.4rem auto 0}
+#landing-logo{
+  position:absolute;top:24px;left:28px;z-index:3;
+  display:flex;align-items:center;gap:.7rem;
+  opacity:0;animation:fadeUp .7s .3s ease forwards;
+}
+.ll-text{font-family:var(--serif);font-size:.95rem;font-weight:300;color:rgba(255,255,255,.75);letter-spacing:.06em}
+.ll-text em{color:#e8c97d;font-style:italic}
+.ll-sub{font-size:.48rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.3);display:block}
+#landing-skip{
+  position:absolute;top:24px;right:28px;z-index:3;
+  background:rgba(0,0,0,.4);border:.5px solid rgba(255,255,255,.15);
+  color:rgba(255,255,255,.35);font-size:.52rem;font-weight:700;
+  letter-spacing:.14em;text-transform:uppercase;padding:.35rem .8rem;
+  opacity:0;animation:fadeUp .6s 2.2s ease forwards;
+  transition:all .2s;
+}
+#landing-skip:hover{border-color:rgba(201,168,76,.4);color:rgba(201,168,76,.7)}
+
+/* ════════════════════════════════════
+   NAV
+════════════════════════════════════ */
+#nav{
+  position:fixed;top:0;left:0;right:0;z-index:800;
+  display:flex;align-items:center;padding:.7rem 2rem;gap:1rem;
+  transition:background .4s,box-shadow .4s,padding .3s;
+}
+#nav.scrolled{
+  background:rgba(8,14,9,.97);backdrop-filter:blur(18px);
+  padding:.55rem 2rem;box-shadow:0 2px 20px rgba(0,0,0,.5);
+  border-bottom:.5px solid rgba(201,168,76,.12);
+}
+.nav-logo{display:flex;align-items:center;gap:.7rem;cursor:pointer;flex-shrink:0}
+.nav-logo-text{font-family:var(--serif);font-size:1.05rem;font-weight:300;color:var(--snow);letter-spacing:.06em;line-height:1.15}
+.nav-logo-text em{color:var(--gl);font-style:italic}
+.nav-logo-sub{font-size:.49rem;letter-spacing:.17em;text-transform:uppercase;color:rgba(255,255,255,.38);display:block}
+.nav-links{display:flex;flex:1;justify-content:center;gap:0}
+.nav-link{
+  font-size:.59rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;
+  color:rgba(255,255,255,.5);padding:.45rem .9rem;background:none;border:none;
+  transition:color .2s;position:relative;
+}
+.nav-link:hover,.nav-link.active{color:var(--gold)}
+.nav-link.active::after{content:'';position:absolute;bottom:-2px;left:.9rem;right:.9rem;height:1px;background:var(--gold)}
+.nav-right{display:flex;align-items:center;gap:.4rem;flex-shrink:0}
+.lang-sw{display:flex;gap:2px}
+.lang-btn{
+  font-size:.54rem;font-weight:700;background:rgba(255,255,255,.05);
+  border:.5px solid rgba(255,255,255,.1);color:rgba(255,255,255,.4);
+  padding:.28rem .5rem;transition:all .2s;
+}
+.lang-btn.active,.lang-btn:hover{background:rgba(201,168,76,.15);border-color:rgba(201,168,76,.4);color:var(--gold)}
+.season-sw{display:flex;gap:2px}
+.season-btn{font-size:.52rem;padding:.28rem .5rem;background:none;border:.5px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35);transition:all .2s}
+.season-btn.active{background:rgba(201,168,76,.18);color:var(--gold)}
+.nav-cta{
+  font-size:.58rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  background:var(--gold);color:var(--dark);padding:.45rem 1.1rem;border:none;transition:background .2s;
+}
+.nav-cta:hover{background:var(--gl)}
+
+/* ════════════════════════════════════
+   HERO — Drone Tour
+════════════════════════════════════ */
+#hero{
+  position:relative;width:100%;height:100vh;min-height:620px;
+  overflow:hidden;background:var(--dark);
+  opacity:0;transition:opacity 1s ease;
+}
+#hero.visible{opacity:1}
+#drone-img{
+  position:absolute;inset:0;width:100%;height:100%;
+  object-fit:cover;object-position:center 45%;
+  transition:opacity 1.2s ease;
+}
+.hero-grad{
+  position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:linear-gradient(180deg,rgba(8,14,9,.75) 0%,rgba(8,14,9,.08) 30%,rgba(8,14,9,.08) 65%,rgba(8,14,9,.9) 100%);
+}
+.hframe{position:absolute;z-index:3;width:38px;height:38px}
+.hframe.tl{top:16px;left:16px;border-top:1px solid rgba(201,168,76,.6);border-left:1px solid rgba(201,168,76,.6)}
+.hframe.tr{top:16px;right:16px;border-top:1px solid rgba(201,168,76,.6);border-right:1px solid rgba(201,168,76,.6)}
+.hframe.bl{bottom:80px;left:16px;border-bottom:1px solid rgba(201,168,76,.6);border-left:1px solid rgba(201,168,76,.6)}
+.hframe.br{bottom:80px;right:16px;border-bottom:1px solid rgba(201,168,76,.6);border-right:1px solid rgba(201,168,76,.6)}
+
+/* HUD */
+#hud{
+  position:absolute;top:80px;right:18px;z-index:5;
+  display:flex;flex-direction:column;gap:3px;
+  opacity:0;transition:opacity .8s;
+}
+#hud.show{opacity:1}
+.hud-row{
+  display:flex;align-items:center;gap:8px;
+  background:rgba(6,10,7,.78);backdrop-filter:blur(10px);
+  border:.5px solid rgba(201,168,76,.2);padding:3px 9px;
+}
+.hud-l{font-size:.48rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);width:34px}
+.hud-v{font-size:.68rem;color:var(--snow);font-weight:300;min-width:90px;text-align:right}
+
+/* Compass */
+#compass{
+  position:absolute;top:80px;left:18px;z-index:5;
+  width:60px;height:60px;border-radius:50%;
+  background:rgba(6,10,7,.78);backdrop-filter:blur(10px);
+  border:.5px solid rgba(201,168,76,.2);
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;transition:opacity .8s;
+}
+#compass.show{opacity:1}
+.comp-ring{position:relative;width:44px;height:44px;border-radius:50%;border:.5px solid rgba(255,255,255,.1)}
+.comp-n{position:absolute;top:1px;left:50%;transform:translateX(-50%);font-size:.42rem;font-weight:700;color:var(--gold)}
+.comp-s{position:absolute;bottom:1px;left:50%;transform:translateX(-50%);font-size:.42rem;color:rgba(255,255,255,.25)}
+.comp-e{position:absolute;right:1px;top:50%;transform:translateY(-50%);font-size:.42rem;color:rgba(255,255,255,.25)}
+.comp-w{position:absolute;left:1px;top:50%;transform:translateY(-50%);font-size:.42rem;color:rgba(255,255,255,.25)}
+#needle{
+  position:absolute;top:50%;left:50%;
+  width:2px;height:17px;
+  background:linear-gradient(to bottom,var(--gold) 50%,rgba(255,255,255,.2) 50%);
+  transform-origin:bottom center;
+  transform:translate(-50%,-100%) rotate(0deg);
+  transition:transform 1.8s cubic-bezier(.34,1.56,.64,1);
+}
+
+/* Hero content */
+.hero-content{
+  position:absolute;bottom:0;left:0;right:0;z-index:4;
+  padding:0 3rem 5.5rem;
+}
+.h-eye{font-size:.6rem;font-weight:700;letter-spacing:.32em;text-transform:uppercase;color:var(--gold);margin-bottom:.7rem}
+.h-title{font-family:var(--serif);font-size:clamp(3rem,7vw,6.5rem);line-height:.9;margin-bottom:.6rem}
+.h-tag{font-family:var(--serif);font-size:clamp(1rem,2.2vw,1.6rem);font-weight:300;font-style:italic;color:rgba(255,255,255,.62);margin-bottom:1.8rem}
+.h-stats{display:flex;gap:1.8rem;flex-wrap:wrap;margin-bottom:2rem}
+.h-stat{border-left:1px solid rgba(201,168,76,.4);padding-left:.8rem}
+.h-stat-v{font-family:var(--serif);font-size:1.25rem;font-weight:300;color:var(--gl);line-height:1}
+.h-stat-l{font-size:.53rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.35)}
+.h-btns{display:flex;gap:.7rem;flex-wrap:wrap}
+.btn-gold{
+  display:inline-flex;align-items:center;gap:.5rem;
+  background:var(--gold);color:var(--dark);
+  padding:.78rem 1.7rem;font-size:.64rem;font-weight:700;
+  letter-spacing:.12em;text-transform:uppercase;
+  border:1px solid var(--gold);transition:all .2s;
+}
+.btn-gold:hover{background:var(--gl);border-color:var(--gl)}
+.btn-outline{
+  display:inline-flex;align-items:center;gap:.5rem;
+  background:rgba(255,255,255,.05);backdrop-filter:blur(6px);
+  color:var(--snow);padding:.78rem 1.5rem;font-size:.64rem;font-weight:700;
+  letter-spacing:.12em;text-transform:uppercase;
+  border:1px solid rgba(255,255,255,.28);transition:all .2s;
+}
+.btn-outline:hover{border-color:var(--gold);color:var(--gold)}
+
+/* Drone controls */
+#drone-ctrl{
+  position:absolute;bottom:18px;left:50%;transform:translateX(-50%);
+  z-index:5;display:flex;gap:.5rem;align-items:center;
+  opacity:0;transition:opacity .8s;
+}
+#drone-ctrl.show{opacity:1}
+.ctrl-btn{
+  display:flex;align-items:center;gap:.4rem;
+  background:rgba(6,10,7,.72);backdrop-filter:blur(8px);
+  border:.5px solid rgba(201,168,76,.22);color:rgba(255,255,255,.6);
+  padding:.38rem .85rem;font-size:.55rem;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;transition:all .2s;
+}
+.ctrl-btn:hover,.ctrl-btn.on{border-color:var(--gold);color:var(--gold)}
+.ctrl-btn.on{background:rgba(201,168,76,.12)}
+
+/* Thumbnail strip */
+#drone-thumbs{
+  position:absolute;bottom:0;left:0;right:0;z-index:5;
+  background:rgba(4,8,5,.88);backdrop-filter:blur(10px);
+  border-top:.5px solid rgba(201,168,76,.1);
+  display:flex;gap:2px;padding:5px;height:66px;overflow-x:auto;
+  scrollbar-width:none;
+}
+#drone-thumbs::-webkit-scrollbar{display:none}
+.dthumb{
+  flex-shrink:0;width:76px;height:54px;cursor:pointer;
+  border:2px solid transparent;overflow:hidden;opacity:.45;transition:all .22s;
+  position:relative;
+}
+.dthumb.on{border-color:var(--gold);opacity:1}
+.dthumb img{width:100%;height:100%;object-fit:cover}
+.dthumb-label{
+  position:absolute;bottom:0;left:0;right:0;
+  background:rgba(0,0,0,.65);font-size:.38rem;font-weight:700;
+  letter-spacing:.07em;text-transform:uppercase;color:var(--gold);
+  padding:1px 3px;
+}
+
+/* ════════════════════════════════════
+   SECTION COMMONS
+════════════════════════════════════ */
+section{padding:5rem 0;position:relative;scroll-margin-top:60px}
+.container{max-width:1200px;margin:0 auto;padding:0 2.5rem}
+.sec-label{display:block;font-size:.58rem;font-weight:700;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);margin-bottom:.6rem}
+.sec-title{font-family:var(--serif);font-size:clamp(1.8rem,4vw,3rem);line-height:1.1;margin-bottom:.5rem}
+.sec-title em{color:var(--gl);font-style:italic}
+.divider{width:42px;height:1px;background:var(--gold);margin:1rem 0 1.5rem}
+.divider.center{margin-left:auto;margin-right:auto}
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .65s ease,transform .65s ease}
+.reveal.in{opacity:1;transform:translateY(0)}
+
+/* ════════════════════════════════════
+   GALERIE
+════════════════════════════════════ */
+#galerie{background:var(--forest);padding:0 0 0}
+.gal-head{padding:3.5rem 2.5rem 0;text-align:center}
+.gal-filters{
+  display:flex;gap:0;justify-content:center;flex-wrap:wrap;
+  padding:1.2rem 2.5rem 0;background:var(--forest);
+}
+.gf-btn{
+  padding:.52rem 1.1rem;font-size:.55rem;font-weight:700;letter-spacing:.13em;
+  text-transform:uppercase;background:rgba(255,255,255,.02);
+  border:.5px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35);
+  transition:all .2s;
+}
+.gf-btn.on{background:rgba(201,168,76,.12);border-color:var(--gold);color:var(--gold)}
+.gf-btn:hover{color:rgba(255,255,255,.65)}
+.gal-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:3px;padding:1rem 3px 3px;
+}
+.gi{
+  position:relative;overflow:hidden;cursor:pointer;
+  aspect-ratio:4/3;background:rgba(30,42,30,.8);
+}
+.gi.w2{grid-column:span 2;aspect-ratio:16/9}
+.gi img{width:100%;height:100%;object-fit:cover;transition:transform .5s,filter .3s;display:block}
+.gi:hover img{transform:scale(1.06);filter:brightness(1.08)}
+.gi-tag{
+  position:absolute;top:.4rem;left:.4rem;
+  background:rgba(0,0,0,.6);border:.5px solid rgba(201,168,76,.3);
+  font-size:.42rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--gold);padding:.13rem .38rem;z-index:2;
+}
+.gi-label{
+  position:absolute;bottom:0;left:0;right:0;z-index:2;
+  background:linear-gradient(to top,rgba(0,0,0,.78),transparent);
+  padding:.55rem .65rem .42rem;
+  font-family:var(--serif);font-size:.78rem;font-style:italic;
+  color:var(--snow);opacity:0;transition:opacity .22s;
+}
+.gi:hover .gi-label{opacity:1}
+/* Season badges */
+.sb-w{position:absolute;top:.4rem;right:.4rem;font-size:.42rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;padding:.13rem .38rem;z-index:2;background:rgba(135,185,235,.18);border:.5px solid rgba(135,185,235,.4);color:rgba(135,185,235,.9)}
+.sb-s{position:absolute;top:.4rem;right:.4rem;font-size:.42rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;padding:.13rem .38rem;z-index:2;background:rgba(74,180,74,.15);border:.5px solid rgba(74,180,74,.35);color:rgba(100,200,100,.9)}
+.sb-a{position:absolute;top:.4rem;right:.4rem;font-size:.42rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;padding:.13rem .38rem;z-index:2;background:rgba(201,120,30,.15);border:.5px solid rgba(201,120,30,.35);color:rgba(230,150,60,.9)}
+
+/* ════════════════════════════════════
+   REVIEWS STRIP
+════════════════════════════════════ */
+.reviews-bar{
+  background:rgba(0,0,0,.35);padding:2rem 2.5rem;
+  border-top:.5px solid rgba(201,168,76,.08);
+}
+.rev-badge{
+  display:flex;align-items:center;gap:1.8rem;flex-wrap:wrap;margin-bottom:2rem;
+  padding-bottom:1.5rem;border-bottom:.5px solid rgba(255,255,255,.06);
+}
+.rev-score{font-family:var(--serif);font-size:3.2rem;font-weight:300;color:var(--snow);line-height:1}
+.rev-stars{color:var(--gold);font-size:1rem;letter-spacing:2px}
+.rev-sub{font-size:.62rem;color:rgba(255,255,255,.35)}
+.rev-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:0}
+.rev-card{padding:1.4rem 1.6rem;border-right:.5px solid rgba(255,255,255,.05)}
+.rev-top{display:flex;align-items:center;gap:.65rem;margin-bottom:.7rem}
+.rev-av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:700;color:#fff;flex-shrink:0}
+.rev-name{font-size:.78rem;font-weight:700;color:var(--snow)}
+.rev-date{font-size:.58rem;color:rgba(255,255,255,.3)}
+.rev-text{font-family:var(--serif);font-size:.88rem;font-style:italic;color:rgba(255,255,255,.62);line-height:1.7}
+
+/* ════════════════════════════════════
+   GRÄCHEN / UMGEBUNG
+════════════════════════════════════ */
+#umgebung{background:linear-gradient(180deg,var(--dark) 0%,var(--forest) 60%,var(--dark) 100%)}
+.stabs{display:flex;gap:0;margin-bottom:2rem;border-bottom:.5px solid rgba(255,255,255,.06)}
+.stab{
+  padding:.62rem 1.8rem;font-size:.58rem;font-weight:700;letter-spacing:.13em;
+  text-transform:uppercase;background:none;border:none;border-bottom:2px solid transparent;
+  color:rgba(255,255,255,.32);transition:all .2s;margin-bottom:-1px;
+}
+.stab.on,.stab:hover{color:var(--gold);border-bottom-color:var(--gold)}
+.scontent{display:none}
+.scontent.on{display:block}
+.act-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1.4rem;margin-top:0}
+.act-card{
+  background:rgba(255,255,255,.02);border:.5px solid rgba(201,168,76,.1);
+  padding:1.5rem;transition:all .24s;position:relative;overflow:hidden;
+}
+.act-card::before{content:'';position:absolute;top:0;left:0;width:100%;height:2px;background:var(--gold);transform:scaleX(0);transform-origin:left;transition:transform .28s}
+.act-card:hover{border-color:rgba(201,168,76,.22);background:rgba(201,168,76,.03)}
+.act-card:hover::before{transform:scaleX(1)}
+.act-icon{font-size:1.8rem;margin-bottom:.9rem;display:block}
+.act-title{font-family:var(--serif);font-size:1.1rem;color:var(--snow);margin-bottom:.3rem}
+.act-desc{font-size:.76rem;color:rgba(255,255,255,.42);line-height:1.7}
+.act-link{display:inline-block;margin-top:.7rem;font-size:.56rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);border-bottom:1px solid rgba(201,168,76,.3);padding-bottom:1px}
+.evt-strip{overflow:hidden;margin-top:3rem;border-top:.5px solid rgba(201,168,76,.08);border-bottom:.5px solid rgba(201,168,74,.08);padding:.85rem 0;background:rgba(0,0,0,.3)}
+.evt-track{display:flex;gap:3.5rem;animation:ticker 28s linear infinite;white-space:nowrap;padding:0 2rem}
+.evt-track:hover{animation-play-state:paused}
+.evt-item{display:inline-flex;align-items:center;gap:.55rem;flex-shrink:0;font-family:var(--serif);font-size:.88rem;font-style:italic;color:rgba(255,255,255,.55)}
+.evt-date{font-family:var(--sans);font-size:.53rem;font-weight:700;font-style:normal;letter-spacing:.1em;text-transform:uppercase;color:var(--gold)}
+
+/* ════════════════════════════════════
+   BUCHEN / PREISE
+════════════════════════════════════ */
+#buchen{background:linear-gradient(180deg,var(--dark) 0%,#0e1a10 100%)}
+.book-grid{display:grid;grid-template-columns:1fr 380px;gap:2.5rem;align-items:start}
+.calc{background:rgba(255,255,255,.02);border:.5px solid rgba(201,168,76,.14);padding:1.4rem;border-top:2px solid var(--gold)}
+.calc h3{font-family:var(--serif);font-size:1.3rem;color:var(--snow);margin-bottom:.25rem}
+.calc-sub{font-size:.7rem;color:var(--gray);margin-bottom:1.3rem}
+.f-grid2{display:grid;grid-template-columns:1fr 1fr;gap:.7rem;margin-bottom:.7rem}
+.f-label{font-size:.56rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.35);display:block;margin-bottom:.3rem}
+.f-input,.f-select{
+  width:100%;background:rgba(255,255,255,.05);border:.5px solid rgba(255,255,255,.1);
+  color:var(--snow);padding:.6rem .75rem;font-family:var(--sans);font-size:.8rem;outline:none;
+  transition:border-color .2s;
+}
+.f-input:focus,.f-select:focus{border-color:var(--gold)}
+.f-select option{background:var(--forest)}
+.calc-result{
+  margin-top:1.1rem;padding-top:1.1rem;
+  border-top:.5px solid rgba(255,255,255,.07);
+  display:none;
+}
+.calc-result.show{display:block}
+.pc-row{display:flex;justify-content:space-between;font-size:.76rem;margin-bottom:.38rem;color:rgba(255,255,255,.52)}
+.pc-total{font-family:var(--serif);font-size:1.15rem;font-weight:300;color:var(--snow);padding-top:.7rem;border-top:.5px solid rgba(255,255,255,.07);margin-top:.55rem}
+.pc-total span:last-child{color:var(--gl)}
+.pc-saving{margin-top:.7rem;padding:.55rem .8rem;background:rgba(74,180,74,.1);border:.5px solid rgba(74,180,74,.28);font-size:.7rem;color:rgba(100,220,100,.85)}
+.calc-btn{
+  width:100%;margin-top:.9rem;background:var(--gold);color:var(--dark);
+  border:none;padding:.75rem;font-size:.62rem;font-weight:700;
+  letter-spacing:.12em;text-transform:uppercase;transition:background .2s;
+}
+.calc-btn:hover{background:var(--gl)}
+.price-note{padding:1rem 1.2rem;background:rgba(201,168,76,.06);border:.5px solid rgba(201,168,76,.15);margin-top:1.5rem;font-size:.72rem;color:rgba(255,255,255,.45);line-height:1.8}
+.price-note strong{color:var(--gl)}
+/* Contact box */
+.cbox{background:rgba(255,255,255,.02);border:.5px solid rgba(201,168,76,.12);padding:1.4rem}
+.cbox h3{font-family:var(--serif);font-size:1.3rem;color:var(--snow);margin-bottom:.22rem}
+.cbox-sub{font-size:.7rem;color:var(--gray);margin-bottom:1.1rem;line-height:1.6}
+.copt{
+  display:flex;align-items:center;gap:.75rem;padding:.75rem .9rem;
+  background:rgba(255,255,255,.02);border:.5px solid rgba(255,255,255,.06);
+  margin-bottom:.45rem;transition:border-color .2s;color:var(--snow);
+}
+.copt:hover{border-color:rgba(201,168,76,.28)}
+.copt-wa{border-color:rgba(37,211,102,.18)}
+.copt-wa:hover{border-color:rgba(37,211,102,.45)}
+.co-lbl{font-size:.54rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:rgba(255,255,255,.32)}
+.co-val{font-family:var(--serif);font-size:.92rem;color:var(--snow)}
+.rules-box{margin-top:1rem;padding:.9rem 1rem;background:rgba(255,255,255,.02);border:.5px solid rgba(255,255,255,.06)}
+.rule-row{display:flex;gap:.5rem;font-size:.73rem;color:rgba(255,255,255,.48);margin-bottom:.32rem}
+.storno{margin-top:.9rem;padding:.85rem 1rem;background:rgba(255,255,255,.02);border:.5px solid rgba(255,255,255,.06);font-size:.7rem;color:rgba(255,255,255,.42);line-height:1.8}
+.storno strong.g{color:rgba(100,200,100,.75)}
+.storno strong.r{color:rgba(220,80,80,.8)}
+
+/* ════════════════════════════════════
+   SERVICES
+════════════════════════════════════ */
+#services{background:linear-gradient(180deg,#0e1a10 0%,var(--forest) 100%)}
+.svc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:1px;background:rgba(201,168,76,.06);margin-top:2.2rem}
+.svc{background:var(--dark);padding:1.3rem 1.1rem;cursor:pointer;transition:background .2s}
+.svc:hover{background:rgba(201,168,76,.04)}
+.svc-icon{font-size:1.5rem;margin-bottom:.7rem;display:block}
+.svc-name{font-family:var(--serif);font-size:.95rem;color:var(--snow);margin-bottom:.22rem}
+.svc-desc{font-size:.7rem;color:rgba(255,255,255,.36);line-height:1.6}
+.svc-desc a{color:rgba(201,168,76,.6);transition:color .2s}
+.svc-desc a:hover{color:var(--gold)}
+.accordion{max-width:820px;margin:2.5rem auto 0}
+.acc-item{border-bottom:.5px solid rgba(255,255,255,.07)}
+.acc-q{display:flex;justify-content:space-between;align-items:center;padding:1rem 0;cursor:pointer;font-family:var(--serif);font-size:1rem;color:var(--snow)}
+.acc-q:hover{color:var(--gl)}
+.acc-icon{color:var(--gold);font-size:1.1rem;transition:transform .24s;flex-shrink:0}
+.acc-item.open .acc-icon{transform:rotate(45deg)}
+.acc-body{max-height:0;overflow:hidden;transition:max-height .3s ease}
+.acc-item.open .acc-body{max-height:400px}
+.acc-inner{padding:0 0 1.1rem;font-size:.8rem;color:rgba(255,255,255,.48);line-height:1.85}
+
+/* ════════════════════════════════════
+   GRUNDRISS
+════════════════════════════════════ */
+#grundriss{background:var(--dark);padding:4rem 0}
+.gr-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:1px;background:rgba(201,168,76,.06);max-width:900px;margin:0 auto 2rem}
+.gr-card{background:var(--dark);padding:1.1rem}
+.gr-icon{font-size:1.4rem;margin-bottom:.45rem;display:block}
+.gr-name{font-family:var(--serif);font-size:.92rem;color:var(--snow);margin-bottom:.15rem}
+.gr-tag{font-size:.54rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold)}
+.gr-note{font-size:.66rem;color:rgba(255,255,255,.32);margin-top:.2rem;line-height:1.5}
+
+/* ════════════════════════════════════
+   FOOTER
+════════════════════════════════════ */
+footer{
+  background:#050a06;padding:1.5rem 2.5rem;
+  border-top:.5px solid rgba(201,168,76,.1);
+}
+.foot-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.8rem}
+.foot-logo{font-family:var(--serif);font-size:.92rem;font-weight:300;color:rgba(255,255,255,.3)}
+.foot-logo em{color:rgba(201,168,76,.38);font-style:italic}
+.foot-links{display:flex;gap:1.4rem;flex-wrap:wrap}
+.foot-links a{font-size:.56rem;color:rgba(255,255,255,.2);letter-spacing:.06em;transition:color .2s}
+.foot-links a:hover{color:var(--gold)}
+.foot-copy{font-size:.55rem;color:rgba(255,255,255,.16)}
+
+/* ════════════════════════════════════
+   LIGHTBOX
+════════════════════════════════════ */
+#lb{
+  display:none;position:fixed;inset:0;z-index:2000;
+  background:rgba(0,0,0,.97);align-items:center;justify-content:center;flex-direction:column;gap:.5rem;
+}
+#lb.on{display:flex}
+#lb-img{max-width:92vw;max-height:85vh;object-fit:contain}
+#lb-cap{font-family:var(--serif);font-size:.92rem;font-style:italic;color:rgba(255,255,255,.42)}
+#lb-cnt{font-size:.54rem;color:rgba(201,168,76,.42);letter-spacing:.1em}
+#lb-x{position:fixed;top:1rem;right:1rem;background:none;border:none;color:rgba(255,255,255,.38);font-size:2rem}
+#lb-x:hover{color:var(--gold)}
+#lb-p,#lb-n{position:fixed;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.5);border:.5px solid rgba(255,255,255,.14);color:rgba(255,255,255,.52);font-size:1.4rem;padding:.4rem .68rem;transition:all .2s}
+#lb-p{left:.8rem}
+#lb-n{right:.8rem}
+#lb-p:hover,#lb-n:hover{border-color:var(--gold);color:var(--gold)}
+
+/* ════════════════════════════════════
+   AI CHAT (ALPA)
+════════════════════════════════════ */
+#alpa-fab{
+  position:fixed;bottom:1.5rem;right:1.5rem;z-index:700;
+  display:flex;flex-direction:column;align-items:flex-end;gap:.45rem;
+  opacity:0;pointer-events:none;transition:opacity .4s;
+}
+#alpa-fab.show{opacity:1;pointer-events:all}
+.fab-lbl{
+  background:rgba(6,10,7,.88);backdrop-filter:blur(12px);
+  border:.5px solid rgba(201,168,76,.24);color:var(--snow);
+  padding:.38rem .8rem;font-size:.58rem;font-weight:700;letter-spacing:.06em;white-space:nowrap;
+}
+.fab-btns{display:flex;gap:.45rem}
+.fab-btn{
+  width:52px;height:52px;border-radius:50%;border:none;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.3rem;cursor:pointer;transition:transform .2s;
+  box-shadow:0 4px 18px rgba(0,0,0,.4);
+}
+.fab-btn:hover{transform:scale(1.1)}
+.fab-wa{background:#25D366}
+.fab-ai{background:linear-gradient(135deg,var(--gold),#7a5818)}
+.fab-dot{position:absolute;top:-2px;right:-2px;width:11px;height:11px;border-radius:50%;background:#ff4444;border:2px solid #050a06;animation:blip 2s infinite}
+
+#alpa-panel{
+  position:fixed;bottom:5rem;right:1.5rem;z-index:701;
+  width:330px;max-height:490px;
+  background:rgba(8,14,9,.97);backdrop-filter:blur(18px);
+  border:.5px solid rgba(201,168,76,.24);
+  display:none;flex-direction:column;
+  box-shadow:0 8px 36px rgba(0,0,0,.55);
+}
+#alpa-panel.open{display:flex}
+.chat-hd{
+  padding:.75rem 1rem;border-bottom:.5px solid rgba(255,255,255,.06);
+  display:flex;align-items:center;justify-content:space-between;
+  background:rgba(201,168,76,.07);
+}
+.chat-title{font-family:var(--serif);font-size:.92rem;color:var(--snow)}
+.chat-sub{font-size:.52rem;color:rgba(255,255,255,.38);letter-spacing:.06em}
+.chat-close{background:none;border:none;color:rgba(255,255,255,.38);font-size:1.1rem}
+.chat-close:hover{color:var(--gold)}
+.chat-sugs{padding:.45rem .65rem 0;display:flex;gap:.3rem;flex-wrap:wrap}
+.chat-sug{font-size:.52rem;background:rgba(255,255,255,.04);border:.5px solid rgba(255,255,255,.1);color:rgba(255,255,255,.42);padding:.22rem .5rem;cursor:pointer;transition:all .2s}
+.chat-sug:hover{border-color:rgba(201,168,76,.3);color:rgba(255,255,255,.65)}
+.chat-msgs{flex:1;overflow-y:auto;padding:.75rem;display:flex;flex-direction:column;gap:.55rem;min-height:180px;max-height:300px}
+.msg{max-width:86%;padding:.55rem .75rem;font-size:.74rem;line-height:1.55}
+.msg.bot{align-self:flex-start;background:rgba(255,255,255,.06);border:.5px solid rgba(255,255,255,.08);color:rgba(255,255,255,.72);border-radius:0 7px 7px 7px}
+.msg.user{align-self:flex-end;background:rgba(201,168,76,.18);border:.5px solid rgba(201,168,76,.25);color:var(--snow);border-radius:7px 0 7px 7px}
+.msg.loading{align-self:flex-start;background:rgba(255,255,255,.04);border:.5px solid rgba(255,255,255,.06);color:rgba(255,255,255,.38);border-radius:0 7px 7px 7px;font-style:italic}
+.chat-inp-row{padding:.65rem;border-top:.5px solid rgba(255,255,255,.06);display:flex;gap:.38rem}
+.chat-inp{flex:1;background:rgba(255,255,255,.05);border:.5px solid rgba(255,255,255,.1);color:var(--snow);padding:.5rem .68rem;font-family:var(--sans);font-size:.74rem;outline:none;transition:border-color .2s}
+.chat-inp:focus{border-color:var(--gold)}
+.chat-inp::placeholder{color:rgba(255,255,255,.22)}
+.chat-send{background:var(--gold);color:var(--dark);border:none;padding:.5rem .75rem;font-size:.7rem;font-weight:700;transition:background .2s}
+.chat-send:hover{background:var(--gl)}
+
+/* ════════════════════════════════════
+   RESPONSIVE
+════════════════════════════════════ */
+@media(max-width:960px){
+  .nav-links{display:none}
+  .book-grid{grid-template-columns:1fr}
+  .container{padding:0 1.5rem}
+}
+@media(max-width:680px){
+  .gal-grid{grid-template-columns:repeat(2,1fr)}
+  .gi.w2{grid-column:span 1;aspect-ratio:4/3}
+  .h-stats{display:none}
+  section{padding:3rem 0}
+}
+@media(max-width:420px){
+  .gal-grid{grid-template-columns:1fr}
+  #nav{padding:.6rem 1rem}
+  .season-sw{display:none}
+}
+</style>
+</head>
+<body>
+<!-- ══ LANDING ══════════════════════════════════ -->
+<div id="landing" style="background:url(panorama-bw.jpeg) center/cover no-repeat #000;">
+  <img id="landing-bg" src="panorama-bw.jpeg" alt="Wallis Panorama" onerror="this.src='view1.jpeg'">
+  <div id="landing-vignette"></div>
+  <div id="landing-logo">
+    <svg width="36" height="36" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+      <rect width="40" height="40" rx="2" fill="rgba(0,0,0,.55)"/>
+      <rect width="40" height="40" rx="2" fill="none" stroke="rgba(201,168,76,.5)" stroke-width=".8"/>
+      <polygon points="20,6 7,28 33,28" fill="none" stroke="#c9a84c" stroke-width="1.3"/>
+      <polygon points="20,6 12,19 28,19" fill="rgba(201,168,76,.2)"/>
+      <polygon points="20,6 16.5,13 23.5,13" fill="rgba(255,255,255,.42)"/>
+      <text x="20" y="37" text-anchor="middle" font-family="Georgia,serif" font-size="7" fill="#c9a84c" font-style="italic" letter-spacing="1.5">LMR</text>
+    </svg>
+    <div>
+      <div class="ll-text">Lodge <em>Monte Rosa</em></div>
+      <span class="ll-sub">Grächen · Wallis · Schweiz</span>
+    </div>
+  </div>
+  <button id="landing-skip" onclick="skipLanding()">Weiter ›</button>
+  <div id="landing-content">
+    <div class="l-eye">Grächen · Wallis · Schweiz</div>
+    <div id="l-coords" onclick="goLanding()">
+      46°11′31.1″N<br>7°50′01.4″E
+    </div>
+    <div class="l-alt">1617 m ü.M.</div>
+    <div class="l-hint" onclick="goLanding()">
+      Entdecken
+      <div class="l-hint-line"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ NAV ══════════════════════════════════════ -->
+<nav id="nav">
+  <div class="nav-logo" onclick="goTo('hero')">
+    <svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+      <rect width="40" height="40" rx="2" fill="rgba(8,14,9,.9)"/>
+      <rect width="40" height="40" rx="2" fill="none" stroke="rgba(201,168,76,.5)" stroke-width="1"/>
+      <polygon points="20,6 7,28 33,28" fill="none" stroke="#c9a84c" stroke-width="1.4"/>
+      <polygon points="20,6 12,19 28,19" fill="rgba(201,168,76,.2)"/>
+      <polygon points="20,6 16.5,13 23.5,13" fill="rgba(255,255,255,.45)"/>
+      <text x="20" y="37" text-anchor="middle" font-family="Georgia,serif" font-size="8" fill="#c9a84c" font-style="italic" letter-spacing="2">LMR</text>
+    </svg>
+    <div>
+      <div class="nav-logo-text">Lodge <em>Monte Rosa</em></div>
+      <span class="nav-logo-sub">Grächen · Wallis · 1617 m ü.M.</span>
+    </div>
+  </div>
+  <div class="nav-links">
+    <button class="nav-link active" id="nl-hero"      onclick="goTo('hero')" data-t="nav-chalet">Chalet</button>
+    <button class="nav-link"        id="nl-galerie"   onclick="goTo('galerie')" data-t="nav-galerie">Galerie</button>
+    <button class="nav-link"        id="nl-umgebung"  onclick="goTo('umgebung')" data-t="nav-graeschen">Grächen</button>
+    <button class="nav-link"        id="nl-buchen"    onclick="goTo('buchen')" data-t="nav-verfug">Verfügbarkeit</button>
+    <button class="nav-link"        id="nl-services"  onclick="goTo('services')" data-t="nav-services">Services</button>
+  </div>
+  <div class="nav-right">
+    <div class="season-sw">
+      <button class="season-btn" id="sb-winter" onclick="setSeason('winter')">❄</button>
+      <button class="season-btn" id="sb-sommer" onclick="setSeason('sommer')">☀</button>
+      <button class="season-btn" id="sb-herbst" onclick="setSeason('herbst')">🍂</button>
+    </div>
+    <div class="lang-sw">
+      <button class="lang-btn active" id="lb-de" onclick="setLang('de')">DE</button>
+      <button class="lang-btn"        id="lb-en" onclick="setLang('en')">EN</button>
+      <button class="lang-btn"        id="lb-fr" onclick="setLang('fr')">FR</button>
+    </div>
+    <button class="nav-cta" onclick="goTo('buchen')" data-t="nav-cta">✉ Anfragen</button>
+  </div>
+</nav>
+
+<!-- ══ HERO ══════════════════════════════════════ -->
+<section id="hero">
+
+  <!-- ① MAP FLYOVER: Europa → Grächen -->
+  <div id="map-drone" style="position:absolute;inset:0;z-index:2;">
+    <div id="fly-map" style="width:100%;height:100%;filter:saturate(1.1)brightness(.75)"></div>
+    <div style="position:absolute;inset:0;z-index:3;pointer-events:none;background:linear-gradient(to bottom,rgba(0,0,0,.6) 0%,rgba(0,0,0,.05) 35%,rgba(0,0,0,.05) 65%,rgba(0,0,0,.9) 100%)"></div>
+    <div class="hframe tl" style="z-index:4"></div>
+    <div class="hframe tr" style="z-index:4"></div>
+    <div class="hframe bl" style="z-index:4;bottom:80px"></div>
+    <div class="hframe br" style="z-index:4;bottom:80px"></div>
+    <!-- Flyover status bar -->
+    <div id="fly-bar" style="position:absolute;top:18px;left:50%;transform:translateX(-50%);z-index:5;background:rgba(3,6,3,.82);backdrop-filter:blur(12px);border:.5px solid rgba(201,168,76,.32);padding:6px 20px;display:flex;align-items:center;gap:14px;white-space:nowrap;opacity:0;transition:opacity .8s;">
+      <span style="font-size:.54rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);">DRONE ANFLUG</span>
+      <span id="fly-loc" style="font-size:.72rem;color:var(--snow);font-weight:300;">Europa</span>
+    </div>
+    <!-- Flyover HUD -->
+    <div id="fly-hud" style="position:absolute;top:80px;right:18px;z-index:5;display:flex;flex-direction:column;gap:3px;opacity:0;transition:opacity .8s;">
+      <div class="hud-row"><span class="hud-l">PHASE</span><span class="hud-v" id="fly-phase" style="color:var(--gl);">Anflug</span></div>
+      <div class="hud-row"><span class="hud-l">ALT</span><span class="hud-v" id="fly-alt">12000 m</span></div>
+      <div class="hud-row"><span class="hud-l">ZIEL</span><span class="hud-v" style="font-size:.56rem;">Grächen VS</span></div>
+    </div>
+    <!-- Music button -->
+    <button id="music-btn" onclick="toggleMusic()" style="position:absolute;top:80px;left:18px;z-index:5;display:flex;align-items:center;gap:.5rem;background:rgba(6,10,7,.72);backdrop-filter:blur(10px);border:.5px solid rgba(201,168,76,.22);color:rgba(255,255,255,.5);padding:.38rem .75rem;font-family:var(--sans);font-size:.54rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;transition:all .2s;cursor:pointer;opacity:0;">
+      <span id="music-dot" style="width:6px;height:6px;border-radius:50%;background:rgba(201,168,76,.5);display:block;"></span>
+      <span id="music-lbl">♪ Musik</span>
+    </button>
+    <audio id="bg-music" loop preload="none">
+      <!-- Add: <source src="alpine-chill.mp3" type="audio/mpeg"> -->
+    </audio>
+    <!-- Hero content -->
+    <div class="hero-content" style="z-index:5;">
+      <div class="h-eye">Grächen · Wallis · Schweiz · 1617 m ü.M.</div>
+      <h1 class="h-title">Lodge <em style="color:var(--gl);font-style:italic;">Monte Rosa</em></h1>
+      <p class="h-tag" data-t="hero-tag">Your Luxury Alpine Escape</p>
+      <div class="h-stats">
+        <div class="h-stat"><div class="h-stat-v">5.0 ★</div><div class="h-stat-l">Gäste-Favorit</div></div>
+        <div class="h-stat"><div class="h-stat-v">Sauna</div><div class="h-stat-l">Private Wellness</div></div>
+        <div class="h-stat"><div class="h-stat-v">3+1</div><div class="h-stat-l">Zimmer · bis 8 Gäste</div></div>
+        <div class="h-stat"><div class="h-stat-v">45 min</div><div class="h-stat-l">nach Zermatt</div></div>
+      </div>
+      <div class="h-btns">
+        <button class="btn-gold" onclick="goTo('buchen')">✉ Jetzt anfragen</button>
+        <button class="btn-outline" onclick="goTo('galerie')">📸 Galerie</button>
+        <button class="btn-outline" onclick="openVideo()">🎬 Video</button>
+      </div>
+    </div>
+    <!-- Skip button -->
+    <div style="position:absolute;bottom:88px;right:18px;z-index:5;">
+      <button onclick="skipFlyover()" class="ctrl-btn">⏭ Überspringen</button>
+    </div>
+  </div>
+
+  <!-- ② PHOTO DRONE (after map flyover) -->
+  <div id="photo-drone" style="position:absolute;inset:0;z-index:2;display:none;">
+    <img id="drone-img" src="IMG_2718.jpeg" alt="Lodge Monte Rosa" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity 1.2s ease;">
+    <div class="hero-grad"></div>
+    <div class="hframe tl"></div><div class="hframe tr"></div>
+    <div class="hframe bl"></div><div class="hframe br"></div>
+    <div id="compass">
+      <div class="comp-ring">
+        <div class="comp-n">N</div><div class="comp-s">S</div>
+        <div class="comp-e">E</div><div class="comp-w">W</div>
+        <div id="needle"></div>
+      </div>
+    </div>
+    <div id="hud">
+      <div class="hud-row"><span class="hud-l">SEITE</span><span class="hud-v" id="hud-side">—</span></div>
+      <div class="hud-row"><span class="hud-l">ALT</span><span class="hud-v" id="hud-alt">50 m</span></div>
+      <div class="hud-row"><span class="hud-l">GPS</span><span class="hud-v" style="font-size:.56rem;">46.19°N 7.83°E</span></div>
+    </div>
+    <div class="hero-content" style="z-index:5;">
+      <div class="h-eye">Grächen · Wallis · Schweiz · 1617 m ü.M.</div>
+      <h1 class="h-title">Lodge <em style="color:var(--gl);font-style:italic;">Monte Rosa</em></h1>
+      <p class="h-tag" data-t="hero-tag">Your Luxury Alpine Escape</p>
+      <div class="h-stats">
+        <div class="h-stat"><div class="h-stat-v">5.0 ★</div><div class="h-stat-l">Gäste-Favorit</div></div>
+        <div class="h-stat"><div class="h-stat-v">Sauna</div><div class="h-stat-l">Private Wellness</div></div>
+        <div class="h-stat"><div class="h-stat-v">3+1</div><div class="h-stat-l">Zimmer · bis 8 Gäste</div></div>
+        <div class="h-stat"><div class="h-stat-v">45 min</div><div class="h-stat-l">nach Zermatt</div></div>
+      </div>
+      <div class="h-btns">
+        <button class="btn-gold" onclick="goTo('buchen')">✉ Jetzt anfragen</button>
+        <button class="btn-outline" onclick="goTo('galerie')">📸 Galerie</button>
+        <button class="btn-outline" onclick="openVideo()">🎬 Video</button>
+      </div>
+    </div>
+    <div id="drone-ctrl">
+      <button class="ctrl-btn on" id="play-btn" onclick="toggleDrone()">⏸ Rundflug</button>
+      <button class="ctrl-btn" onclick="resetDrone()">⟳ Reset</button>
+      <button class="ctrl-btn" onclick="backToMap()">🗺 Karte</button>
+    </div>
+    <div id="drone-thumbs"></div>
+  </div>
+
+</section>
+
+<!-- ══ GALERIE ════════════════════════════════════ -->
+<section id="galerie" style="background:var(--forest);padding:0;scroll-margin-top:60px">
+  <div class="gal-head reveal">
+    <span class="sec-label">Galerie</span>
+    <h2 class="sec-title">Die Lodge <em>von innen & aussen</em></h2>
+    <div class="divider center"></div>
+  </div>
+  <div class="gal-filters">
+    <button class="gf-btn on" onclick="gf('alle',this)">Alle</button>
+    <button class="gf-btn" onclick="gf('wohnen',this)">Wohnen</button>
+    <button class="gf-btn" onclick="gf('schlafen',this)">Schlafen</button>
+    <button class="gf-btn" onclick="gf('wellness',this)">Wellness · Sauna</button>
+    <button class="gf-btn" onclick="gf('bad',this)">Bad</button>
+    <button class="gf-btn" onclick="gf('aussen',this)">Aussen · Terrassen</button>
+  </div>
+  <div class="gal-grid" id="gal-grid">
+    <div class="gi w2" data-cat="wohnen" onclick="lb(0)"><img src="int-wohnen.jpeg" alt="Wohnzimmer"><div class="gi-tag">Wohnzimmer ✨</div><div class="gi-label">Panorama-Kamin · Bergblick · Holzscheiben-Wand</div></div>
+    <div class="gi"    data-cat="wohnen" onclick="lb(1)"><img src="int-wohnen2.png" alt="Wohnen"><div class="gi-tag">Wohn-Ess-Küche</div><div class="gi-label">Offener Grundriss · Kronleuchter</div></div>
+    <div class="gi"    data-cat="wohnen" onclick="lb(2)"><img src="int-kueche.jpeg" alt="Küche"><div class="gi-tag">Küche</div><div class="gi-label">Inselblock · Holztisch · Miele</div></div>
+    <div class="gi"    data-cat="wohnen" onclick="lb(3)"><img src="int-tvwall.png" alt="TV-Wand"><div class="gi-tag">TV-Wand ✨</div><div class="gi-label">Screen in Holzscheiben-Wand</div></div>
+    <div class="gi w2" data-cat="wohnen" onclick="lb(4)"><img src="int-gang.png" alt="Korridor"><div class="gi-tag">Korridor ✨</div><div class="gi-label">Holzscheiben-Wand beleuchtet · Bodenlichter</div></div>
+    <div class="gi"    data-cat="wohnen" onclick="lb(5)"><img src="int-treppe.png" alt="Treppe"><div class="gi-tag">Holztreppe</div><div class="gi-label">Offene Stufen · Walliser Handwerk</div></div>
+    <div class="gi"    data-cat="schlafen" onclick="lb(6)"><img src="int-sz1.jpeg" alt="DZ 1"><div class="gi-tag">Doppelzimmer 1</div><div class="gi-label">Boxspring · Holzscheiben-Deko</div></div>
+    <div class="gi"    data-cat="schlafen" onclick="lb(7)"><img src="int-sz2.jpeg" alt="DZ 2"><div class="gi-tag">Doppelzimmer 2</div><div class="gi-label">Boxspring · Balkonzugang</div></div>
+    <div class="gi"    data-cat="schlafen" onclick="lb(8)"><img src="int-kinderzimmer.png" alt="Kinderzimmer"><div class="gi-tag">Kinderzimmer 👶</div><div class="gi-label">Stockbett 2×90×200 + Hochbett</div></div>
+    <div class="gi"    data-cat="schlafen" onclick="lb(10)"><img src="int-sz3.png" alt="DZ 3"><div class="gi-tag">Doppelzimmer 3</div><div class="gi-label">Boxspring · Balkon · Sommerblick</div></div>
+    <div class="gi w2" data-cat="schlafen" onclick="lb(10)"><img src="int-fenster-berg.png" alt="Bergblick"><div class="gi-tag">Ausblick aus dem Bett ✨</div><div class="gi-label">Walliser Viertausender direkt vom Kopfkissen</div></div>
+    <div class="gi w2" data-cat="wellness" onclick="lb(11)"><img src="int-wellness3.png" alt="Wellness"><div class="gi-tag">Wellness · Spa ✨</div><div class="gi-label">Badewanne · Buddha-Wandbild · Relaxliege</div></div>
+    <div class="gi"    data-cat="wellness" onclick="lb(12)"><img src="int-sauna.jpeg" alt="Sauna"><div class="gi-tag">Sauna ⭐</div><div class="gi-label">Finnische Holzsauna · Bergfenster</div></div>
+    <div class="gi"    data-cat="wellness" onclick="lb(13)"><img src="int-saunabereich.jpeg" alt="Saunabereich"><div class="gi-tag">Wellness-Bereich</div><div class="gi-label">Sauna + XXL-Dampfdusche</div></div>
+    <div class="gi"    data-cat="wellness" onclick="lb(14)"><img src="int-steinwaschbecken.png" alt="Steinbecken"><div class="gi-tag">Stein-Waschbecken</div><div class="gi-label">Doppel-Flusssteinschale auf Teak</div></div>
+    <div class="gi"    data-cat="wellness" onclick="lb(15)"><img src="int-dusche.jpeg" alt="Dusche"><div class="gi-tag">XXL-Regendusche</div><div class="gi-label">Glasfront · Naturstein</div></div>
+    <div class="gi"    data-cat="bad" onclick="lb(16)"><img src="int-bad3.png" alt="Bad"><div class="gi-tag">Bad</div><div class="gi-label">Glasdusche · Teak · Holzdecke</div></div>
+    <div class="gi"    data-cat="bad" onclick="lb(17)"><img src="int-wc.jpeg" alt="Gäste WC"><div class="gi-tag">Gäste-WC</div><div class="gi-label">Rundbogen-Fenster · Designer</div></div>
+    <div class="gi w2" data-cat="aussen" onclick="lb(18)"><img src="ext-terrasse-sommer.png" alt="Terrasse Sommer"><div class="gi-tag">Terrasse Sommer ✨</div><div class="sb-s">☀ Sommer</div><div class="gi-label">Liegestühle · Glasgeländer · Grächen Tal</div></div>
+    <div class="gi w2" data-cat="aussen" onclick="lb(19)"><img src="front-winter.jpeg" alt="Winter"><div class="gi-tag">Frontansicht Winter</div><div class="sb-w">❄ Winter</div><div class="gi-label">Schneebedecktes Chalet · Walliser Bergpanorama</div></div>
+    <div class="gi"    data-cat="aussen" onclick="lb(20)"><img src="IMG_2712.jpeg" alt="Terrasse OG"><div class="gi-tag">Terrasse OG</div><div class="sb-a">🍂 Herbst</div><div class="gi-label">Langer Holzbalkon</div></div>
+    <div class="gi"    data-cat="aussen" onclick="lb(21)"><img src="IMG_2718.jpeg" alt="Südseite"><div class="gi-tag">Südseite</div><div class="sb-a">🍂 Herbst</div><div class="gi-label">Panoramaverglasung · Terrassen</div></div>
+    <div class="gi"    data-cat="aussen" onclick="lb(22)"><img src="IMG_2749.jpeg" alt="Panorama"><div class="gi-tag">Bergpanorama</div><div class="sb-a">🍂 Herbst</div><div class="gi-label">Viertausender vom Balkon</div></div>
+    <div class="gi"    data-cat="aussen" onclick="lb(23)"><img src="IMG_2755.jpeg" alt="Sonne"><div class="gi-tag">Sonnenblick</div><div class="sb-a">🍂 Herbst</div><div class="gi-label">Gegenlicht · Alpengipfel</div></div>
+    <div class="gi w2" data-cat="aussen" onclick="lb(24)"><img src="view1.jpeg" alt="Panorama OG"><div class="gi-tag">Panorama Balkon OG ✨</div><div class="sb-a">🍂 Herbst</div><div class="gi-label">Monte Rosa + Dom · Glasbalkon</div></div>
+    <div class="gi"    data-cat="aussen" onclick="lb(25)"><img src="view2.jpeg" alt="Aussenansicht"><div class="gi-tag">Aussenansicht</div><div class="sb-a">🍂 Herbst</div><div class="gi-label">Holzfassade · Alpengipfel</div></div>
+  </div>
+
+  <!-- Reviews -->
+  <div class="reviews-bar reveal">
+    <div class="rev-badge">
+      <div>
+        <div style="font-family:var(--serif);font-size:1rem;color:var(--gl);">🏆 Gäste-Favorit</div>
+        <div class="rev-sub">Eine der beliebtesten Unterkünfte auf Airbnb</div>
+      </div>
+      <div>
+        <div class="rev-score">5.0</div>
+        <div class="rev-stars">★★★★★</div>
+        <div class="rev-sub">8 Bewertungen · 100%</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.3rem .8rem;">
+        <span class="rev-sub">Sauberkeit <b style="color:var(--gl)">5.0</b></span>
+        <span class="rev-sub">Check-in <b style="color:var(--gl)">4.9</b></span>
+        <span class="rev-sub">Lage <b style="color:var(--gl)">4.9</b></span>
+        <span class="rev-sub">Kommunikation <b style="color:var(--gl)">4.9</b></span>
+      </div>
+    </div>
+    <div class="rev-grid">
+      <div class="rev-card">
+        <div class="rev-top"><div class="rev-av" style="background:linear-gradient(135deg,#4a7c4e,#1e3a22)">C</div><div><div class="rev-name">Christian</div><div class="rev-date">Cham · Gruppenreise · 2025</div></div><span style="margin-left:auto;color:var(--gold);font-size:.72rem">★★★★★</span></div>
+        <p class="rev-text">«Das Chalet ist traumhaft gelegen. Sonne bis 18:30, angenehme Temperaturen auf der Terrasse und absolute Ruhe.»</p>
+      </div>
+      <div class="rev-card">
+        <div class="rev-top"><div class="rev-av" style="background:linear-gradient(135deg,#3d6be0,#1a2f8a)">A</div><div><div class="rev-name">Anna</div><div class="rev-date">Januar 2026</div></div><span style="margin-left:auto;color:var(--gold);font-size:.72rem">★★★★★</span></div>
+        <p class="rev-text">«Alles war makellos. Die Aussicht atemberaubend — das Chalet hat den Charme der Schweiz wirklich eingefangen.»</p>
+      </div>
+      <div class="rev-card">
+        <div class="rev-top"><div class="rev-av" style="background:linear-gradient(135deg,#c9a84c,#7a6020)">D</div><div><div class="rev-name">Denis</div><div class="rev-date">August 2025</div></div><span style="margin-left:auto;color:var(--gold);font-size:.72rem">★★★★★</span></div>
+        <p class="rev-text">«Alle Annehmlichkeiten mit einer sehr coolen Sauna. Bergblick (und die Schafe 😉) herrlich. Caroline ist cool!»</p>
+      </div>
+      <div class="rev-card" style="border-right:none">
+        <div class="rev-top"><div class="rev-av" style="background:linear-gradient(135deg,#e84393,#8a1a4a)">R</div><div><div class="rev-name">Romain</div><div class="rev-date">Juli 2025</div></div><span style="margin-left:auto;color:var(--gold);font-size:.72rem">★★★★★</span></div>
+        <p class="rev-text">«Alles von hoher Qualität — Küche, Zimmer, Sauna. Sehr ruhig, atemberaubende Aussicht!»</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ UMGEBUNG ═══════════════════════════════════ -->
+<section id="umgebung">
+  <div class="container">
+    <div class="reveal" style="text-align:center;margin-bottom:2.5rem">
+      <span class="sec-label">Grächen · Wallis · Umgebung</span>
+      <h2 class="sec-title">7 Erlebnisse <em>rundum</em></h2>
+      <div class="divider center"></div>
+      <p style="font-size:.8rem;color:rgba(255,255,255,.4);max-width:500px;margin:0 auto;line-height:1.8">Grächen auf 1617 m bietet in jeder Saison unvergessliche Erlebnisse — direkt vor der Lodge.</p>
+    </div>
+    <div class="stabs reveal">
+      <button class="stab on" id="st-win" onclick="showSeason('win',this)">❄ Winter</button>
+      <button class="stab"    id="st-som" onclick="showSeason('som',this)">☀ Sommer</button>
+      <button class="stab"    id="st-her" onclick="showSeason('her',this)">🍂 Herbst</button>
+      <button class="stab"    id="st-all" onclick="showSeason('all',this)">🗓 Ganzjährig</button>
+    </div>
+    <div class="scontent on" id="sc-win">
+      <div class="act-grid">
+        <div class="act-card"><span class="act-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.1"><path d="M3 17l3-8 4 3 4-6 4 4"/><circle cx="17" cy="4" r="2"/></svg></span><div class="act-title">Skifahren · Grächen-Saas Fee</div><div class="act-desc">220 km Pisten, direkter Gondel-Zugang. Ganzjahresskifahren auf dem Allalin-Gletscher.</div><a class="act-link" href="https://graechen.ch/de/Aktivitaeten/Skifahren-und-Schlitteln" target="_blank">Skigebiet →</a></div>
+        <div class="act-card"><span class="act-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.1"><path d="M3 12h18M3 12l4-4m-4 4l4 4"/><path d="M21 12l-4-4m4 4l-4 4"/></svg></span><div class="act-title">Langlauf & Schneeschuh</div><div class="act-desc">30 km gespurte Loipen auf Hannigalp. Geführte Schneeschuhwanderungen möglich.</div><a class="act-link" href="https://graechen.ch" target="_blank">graachen.ch →</a></div>
+        <div class="act-card"><span class="act-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.1"><polygon points="12,2 2,22 22,22"/><polyline points="12,2 17,12 22,22"/></svg></span><div class="act-title">Zermatt · Matterhorn</div><div class="act-desc">45 Min. — Weltberühmtes Matterhorn, autofreies Dorf, Ganzjahresskifahren bis 3883 m.</div><a class="act-link" href="https://www.zermatt.ch" target="_blank">zermatt.ch →</a></div>
+        <div class="act-card"><span class="act-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.1"><polygon points="6,3 18,3 22,9 12,22 2,9"/><polyline points="2,9 12,14 22,9"/><line x1="12" y1="3" x2="12" y2="14"/></svg></span><div class="act-title">Saas-Fee · Gletscher</div><div class="act-desc">35 Min. — Perle der Alpen. Gletscherskigebiet, höchstes Drehrestaurant der Welt.</div><a class="act-link" href="https://www.saas-fee.ch" target="_blank">saas-fee.ch →</a></div>
+      </div>
+    </div>
+    <div class="scontent" id="sc-som">
+      <div class="act-grid">
+        <div class="act-card"><span class="act-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.1"><path d="M3 12l9-9 9 9"/><path d="M9 21V12h6v9"/></svg></span><div class="act-title">Wandern & Trekking</div><div class="act-desc">300+ km Wanderwege. Europa-Höhenweg Nr. 5 (Chamonix–Zermatt) direkt zugänglich.</div><a class="act-link" href="https://graechen.ch" target="_blank">Routen →</a></div>
+        <div class="act-card"><span class="act-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.1"><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/><path d="M15 6a1 1 0 100-2 1 1 0 000 2z"/><path d="M12 6l-3 7h7.5"/><path d="M5.5 14L9 6"/></svg></span><div class="act-title">Mountainbiken</div><div class="act-desc">Gondel transportiert Bikes bis Hannigalp. Trails für alle Niveaus.</div><a class="act-link" href="https://graechen.ch" target="_blank">Mehr →</a></div>
+        <div class="act-card"><span class="act-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.1"><path d="M2 12h20M2 16c2 0 2-2 4-2s2 2 4 2 2-2 4-2 2 2 4 2"/><circle cx="12" cy="6" r="3"/></svg></span><div class="act-title">Leukerbad · Therme</div><div class="act-desc">50 Min. — Grösste Thermalbäder der Alpen. Gemmibahn, Wanderparadies, Wellness.</div><a class="act-link" href="https://www.leukerbad.ch" target="_blank">leukerbad.ch →</a></div>
+        <div class="act-card"><span class="act-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.1"><path d="M18 8h1a4 4 0 010 8h-1"/><path d="M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/></svg></span><div class="act-title">Walliser Gastronomie</div><div class="act-desc">Fondue, Raclette, Walliser Teller — 5 Restaurants fussläufig.</div><a class="act-link" href="https://graechen.ch/de/Genuss-Kultur/Genuss-im-Tal/Restaurant-Guide" target="_blank">Restaurants →</a></div>
+      </div>
+    </div>
+    <div class="scontent" id="sc-her">
+      <div class="act-grid">
+        <div class="act-card"><span class="act-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.1"><path d="M17.5 7.5a7.5 7.5 0 11-15 0 7.5 7.5 0 0115 0z"/><path d="M10 15v7"/></svg></span><div class="act-title">Herbstwandern</div><div class="act-desc">Goldgelbe Lärchenwälder — die schönste Zeit. Weniger Andrang, perfekte Temperaturen.</div><a class="act-link" href="https://graechen.ch" target="_blank">Mehr →</a></div>
+        <div class="act-card"><span class="act-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.1"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg></span><div class="act-title">Kuhkämpfe · Herbstfeste</div><div class="act-desc">Traditionelle Walliser Kuhkämpfe im September. Dorfmärkte, Weinfeste in Leuk.</div><a class="act-link" href="https://graechen.ch" target="_blank">Events →</a></div>
+        <div class="act-card"><span class="act-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.1"><path d="M18 8h1a4 4 0 010 8h-1M2 8h16v5a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/></svg></span><div class="act-title">Weinfeste · Wallis</div><div class="act-desc">Grösstes Weinbaugebiet der Schweiz. Fendant, Cornalin ab Winzer in Leuk/Visp.</div><a class="act-link" href="https://www.valais.ch" target="_blank">valais.ch →</a></div>
+        <div class="act-card"><span class="act-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.1"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg></span><div class="act-title">Entspannung & Wellness</div><div class="act-desc">Nach dem Wandern: private Sauna, freistehende Badewanne, Kamin.</div><span class="act-link" style="cursor:default">Im Haus ✓</span></div>
+      </div>
+    </div>
+    <div class="scontent" id="sc-all">
+      <div class="act-grid">
+        <div class="act-card"><span class="act-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.1"><polygon points="1,6 1,22 8,18 16,22 23,18 23,2 16,6 8,2"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg></span><div class="act-title">Zermatt · Saas-Fee · Leukerbad</div><div class="act-desc">45 · 35 · 50 Min. Drei Weltdestinationen in Fahrdistanz.</div><a class="act-link" href="https://www.zermatt.ch" target="_blank">Mehr →</a></div>
+        <div class="act-card"><span class="act-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.1"><path d="M12 12V3m0 9L3 7m9 5l9-5"/><path d="M5 14a7 7 0 0014 0"/><line x1="12" y1="21" x2="12" y2="17"/></svg></span><div class="act-title">Helikopterflüge</div><div class="act-desc">Air Zermatt Rundflugangebote über die Walliser Alpen.</div><a class="act-link" href="https://www.air-zermatt.ch" target="_blank">air-zermatt.ch →</a></div>
+        <div class="act-card"><span class="act-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.1"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></span><div class="act-title">Remote Work · 500 Mbit/s</div><div class="act-desc">Glasfaser-Internet. Bergblick statt Büro — idealer Workation-Standort.</div><span class="act-link" style="cursor:default">Im Haus ✓</span></div>
+      </div>
+    </div>
+    <div class="evt-strip reveal">
+      <div class="evt-track">
+        <span class="evt-item"><span class="evt-date">Jul</span>Grächen Sommerfest</span>
+        <span class="evt-item"><span class="evt-date">Aug</span>Kuhkampf Hannigalp</span>
+        <span class="evt-item"><span class="evt-date">Sep</span>Weinfest Leuk</span>
+        <span class="evt-item"><span class="evt-date">Okt</span>Herbstwandertage</span>
+        <span class="evt-item"><span class="evt-date">Dez</span>Weihnachtsmarkt Grächen</span>
+        <span class="evt-item"><span class="evt-date">Jan</span>Skicross Hannigalp</span>
+        <span class="evt-item"><span class="evt-date">Feb</span>Fasnacht Visp</span>
+        <span class="evt-item"><span class="evt-date">Mrz</span>Frühlingsskifahren Saas-Fee</span>
+        <span class="evt-item"><span class="evt-date">Jul</span>Grächen Sommerfest</span>
+        <span class="evt-item"><span class="evt-date">Aug</span>Kuhkampf Hannigalp</span>
+        <span class="evt-item"><span class="evt-date">Sep</span>Weinfest Leuk</span>
+        <span class="evt-item"><span class="evt-date">Okt</span>Herbstwandertage</span>
+        <span class="evt-item"><span class="evt-date">Dez</span>Weihnachtsmarkt Grächen</span>
+        <span class="evt-item"><span class="evt-date">Jan</span>Skicross Hannigalp</span>
+        <span class="evt-item"><span class="evt-date">Feb</span>Fasnacht Visp</span>
+        <span class="evt-item"><span class="evt-date">Mrz</span>Frühlingsskifahren Saas-Fee</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ BUCHEN ═════════════════════════════════════ -->
+<section id="buchen">
+  <div class="container">
+    <div class="reveal" style="text-align:center;margin-bottom:3rem">
+      <span class="sec-label">Direktbuchung · Ohne Plattformgebühr</span>
+      <h2 class="sec-title">Verfügbarkeit <em>& Preise</em></h2>
+      <div class="divider center"></div>
+    </div>
+    <div class="book-grid">
+      <div>
+        <div class="calc reveal">
+          <h3 data-t="calc-title">Preisrechner</h3>
+          <div class="calc-sub" data-t="calc-sub">Sofortpreis + Vergleich mit Airbnb</div>
+          <div class="f-grid2">
+            <div><label class="f-label" data-t="calc-arrive">Anreise</label><input type="date" id="pc-a" class="f-input" onchange="calcP()"></div>
+            <div><label class="f-label" data-t="calc-depart">Abreise</label><input type="date" id="pc-d" class="f-input" onchange="calcP()"></div>
+          </div>
+          <label class="f-label" data-t="calc-guests">Gäste</label>
+          <select id="pc-g" class="f-select" onchange="calcP()" style="margin-bottom:.6rem">
+            <option value="2">2 Personen</option>
+            <option value="3">3 Personen</option>
+            <option value="4">4 Personen</option>
+            <option value="5">5 Personen</option>
+            <option value="6" selected>6 Personen (Basis)</option>
+            <option value="7">7 Personen (+CHF 70/Nacht)</option>
+            <option value="8">8 Personen (+CHF 140/Nacht)</option>
+          </select>
+          <div style="display:flex;gap:.5rem;margin-bottom:.5rem;align-items:center">
+            <input type="checkbox" id="pc-pet" onchange="calcP()" style="accent-color:var(--gold)">
+            <label for="pc-pet" style="font-size:.7rem;color:rgba(255,255,255,.45)">Haustier (+CHF 10/Tag)</label>
+          </div>
+          <div class="calc-result" id="calc-res"></div>
+          <button class="calc-btn" onclick="calcP()" data-t="calc-btn">Preis berechnen →</button>
+        </div>
+        <div class="price-note reveal" style="margin-top:1.5rem">
+          <strong>Richtgrössen Direktbuchung:</strong><br>
+          Nebensaison ab <strong>CHF 2'800/Woche</strong> · Sommer/Winter ab <strong>CHF 4'200/Woche</strong><br>
+          Weihnachten ab <strong>CHF 6'000/Woche</strong> · Silvester ab <strong>CHF 6'500/Woche</strong><br>
+          <span style="font-size:.64rem;color:rgba(255,255,255,.28)">Endreinigung CHF 350 · Kaution CHF 500 · Kurtaxe CHF 3.80/P/Nacht</span><br>
+          <span style="color:rgba(100,200,100,.75);font-size:.7rem">✓ Bettwäsche & Handtücher inklusive · ✓ WLAN · ✓ Sauna</span><br><span style="color:rgba(100,200,100,.65);font-size:.68rem">✓ Elektrotaxi An-/Abreise gratis bei 7+ Nächten (CHF 40 Wert)</span>
+        </div>
+      </div>
+      <div>
+        <div class="cbox reveal">
+          <h3>Direktbuchung</h3>
+          <div class="cbox-sub">Ohne Plattformgebühren — persönlich und unkompliziert. Antwort innerhalb weniger Stunden.</div>
+          <a href="https://wa.me/41793230674?text=Hallo%20Caroline%2C%20ich%20m%C3%B6chte%20die%20Lodge%20Monte%20Rosa%20anfragen." target="_blank" class="copt copt-wa">
+            <span style="font-size:1.2rem">💬</span>
+            <div><div class="co-lbl">WhatsApp · Schnellste Option</div><div class="co-val">Caroline +41 79 323 06 74</div></div>
+            <span style="margin-left:auto;font-size:.5rem;background:#25D366;color:#fff;padding:.2rem .45rem;font-weight:700">ONLINE</span>
+          </a>
+          <a href="mailto:hoefenmatt@outlook.com?subject=Anfrage Lodge Monte Rosa" class="copt">
+            <span style="font-size:1.2rem">✉️</span>
+            <div><div class="co-lbl">E-Mail</div><div class="co-val">hoefenmatt@outlook.com</div></div>
+          </a>
+          <a href="https://www.airbnb.ch/p/lodgemonterosa" target="_blank" class="copt">
+            <span style="font-size:1.2rem">🏡</span>
+            <div><div class="co-lbl">Airbnb <span style="font-size:.48rem;background:rgba(255,100,100,.15);color:rgba(255,120,120,.8);padding:.1rem .3rem;margin-left:.3rem">+14% Gebühr</span></div><div class="co-val" style="font-size:.82rem">airbnb.ch/p/lodgemonterosa</div></div>
+          </a>
+          <a href="https://www.bergfex.com/graechen/chalet-lodge-monte-rosa/" target="_blank" class="copt">
+            <span style="font-size:1.2rem">⛷️</span>
+            <div><div class="co-lbl">Bergfex</div><div class="co-val" style="font-size:.82rem">bergfex.com · Lodge Monte Rosa</div></div>
+          </a>
+          <div class="rules-box">
+            <div style="font-size:.56rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.28);margin-bottom:.7rem">Preisübersicht</div>
+            <div style="display:grid;grid-template-columns:1fr auto;gap:.3rem .6rem;font-size:.74rem;">
+              <span style="color:rgba(255,255,255,.5)">Endreinigung</span><span style="color:rgba(255,255,255,.7);text-align:right;white-space:nowrap">CHF 350</span>
+              <span style="color:rgba(255,255,255,.5)">Kaution (rückzahlbar)</span><span style="color:rgba(255,255,255,.7);text-align:right;white-space:nowrap">CHF 500</span>
+              <span style="color:rgba(255,255,255,.5)">Extra-Gäste (7.–8. P.)</span><span style="color:rgba(255,255,255,.7);text-align:right;white-space:nowrap">CHF 70/P/Nacht</span>
+              <span style="color:rgba(255,255,255,.5)">Haustier</span><span style="color:rgba(255,255,255,.7);text-align:right;white-space:nowrap">CHF 10/Tag</span>
+              <span style="color:rgba(255,255,255,.5)">Kurtaxe (vor Ort)</span><span style="color:rgba(255,255,255,.7);text-align:right;white-space:nowrap">CHF 3.80/P/Nacht</span>
+              <span style="color:rgba(255,255,255,.35);font-size:.65rem"></span><span style="color:rgba(255,255,255,.35);font-size:.65rem;text-align:right">Kinder 6–15 J.: CHF 1.90</span>
+              <span style="color:rgba(255,255,255,.5)">E-Taxi Anreise/Abreise</span><span style="color:rgba(100,200,100,.8);text-align:right;white-space:nowrap;font-weight:700">GRATIS ✓</span>
+              <span style="color:rgba(255,255,255,.35);font-size:.65rem">bei mind. 7 Nächten</span><span style="color:rgba(255,255,255,.35);font-size:.65rem;text-align:right">(sonst CHF 40 retour)</span>
+            </div>
+            <div style="margin-top:.7rem;padding-top:.6rem;border-top:.5px solid rgba(255,255,255,.06)">
+              <div style="font-size:.56rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.28);margin-bottom:.5rem">Hausregeln</div>
+              <div class="rule-row"><span>✓</span><span>Check-in 16:00 · Check-out 10:00</span></div>
+              <div class="rule-row"><span>✓</span><span>Haustier max. 1 (+CHF 10/Tag)</span></div>
+              <div class="rule-row"><span>✗</span><span>Kein Rauchen im Haus</span></div>
+              <div class="rule-row"><span>✗</span><span>Keine Veranstaltungen · Max. 8 Gäste</span></div>
+            </div>
+          </div>
+          <div class="storno">
+            <div style="font-size:.54rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.25);margin-bottom:.4rem">Stornierung</div>
+            <strong class="g">100% Rückerstattung</strong> bis 30 Tage vor Check-in.<br>
+            <strong class="r">Keine Rückerstattung</strong> bei Stornierung unter 30 Tagen.<br>
+            <span style="font-size:.62rem;color:rgba(255,255,255,.25)">Reiseversicherung empfohlen.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ SERVICES ════════════════════════════════════ -->
+<section id="services">
+  <div class="container">
+    <div class="reveal" style="text-align:center;margin-bottom:0">
+      <span class="sec-label">Services · Hausinfo · ALPA Concierge</span>
+      <h2 class="sec-title">Alles was Sie <em>brauchen</em></h2>
+      <div class="divider center"></div>
+    </div>
+    <div class="svc-grid reveal">
+      <div class="svc">
+  <span class="svc-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 001.99 1.61H19a2 2 0 001.97-1.67L23 6H6"/></svg></span>
+  <div class="svc-name">Einkauf & Heimlieferung</div>
+  <div class="svc-desc">
+    <span style="display:inline-block;background:rgba(201,168,76,.15);border:.5px solid rgba(201,168,76,.3);color:rgba(201,168,76,.9);font-size:.6rem;font-weight:700;padding:.15rem .45rem;margin-bottom:.4rem">💡 Tipp: Vor Anreise bestellen</span><br>
+    Coop/Volg/Denner: Heimlieferung ab CHF 100 direkt ins Chalet — so ist bei Anreise alles bereit. Bäckerei Z'Pfünderli empfohlen.
+    <a href="https://graechen.ch/de/Genuss-Kultur/Shopping" target="_blank">Shopping →</a>
+  </div>
+</div>
+      <div class="svc">
+  <span class="svc-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.2"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></span>
+  <div class="svc-name">Elektrotaxi — Anreise/Abreise</div>
+  <div class="svc-desc">
+    <span style="display:inline-block;background:rgba(100,200,100,.15);border:.5px solid rgba(100,200,100,.35);color:rgba(100,200,100,.9);font-size:.6rem;font-weight:700;padding:.15rem .45rem;margin-bottom:.4rem">✓ GRATIS bei 7+ Nächten</span><br>
+    Verkehrsfreie Zone — kein Auto bis zur Lodge. Gepäcktransport per E-Taxi ab Central Garage (CHF 40 retour, bei 7+ Nächten inklusive). Bitte bei Buchungsbestätigung erwähnen.
+    <a href="https://graechen.ch/de/Info-Service/Anreise-Mobilitaet" target="_blank">Anreise Grächen →</a>
+  </div>
+</div>
+      <div class="svc"><span class="svc-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.2"><path d="M3 17l3-8 4 3 4-6 4 4"/><circle cx="17" cy="4" r="2"/><path d="M3 21h18"/></svg></span><div class="svc-name">Ski & Bergbahnen</div><div class="svc-desc">Zwei Verleihe fussläufig. Skitickets online. <a href="https://graechen.ch/de/Aktivitaeten/Skifahren-und-Schlitteln/Skiverleih-Skidepot" target="_blank">Skiverleih →</a></div></div>
+      <div class="svc"><span class="svc-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.2"><path d="M18 8h1a4 4 0 010 8h-1"/><path d="M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg></span><div class="svc-name">Restaurants</div><div class="svc-desc">5 Restaurants fussläufig. Auf Wunsch reservieren wir für Sie. <a href="https://graechen.ch/de/Genuss-Kultur/Genuss-im-Tal/Restaurant-Guide" target="_blank">Restaurant-Guide →</a></div></div>
+      <div class="svc"><span class="svc-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></span><div class="svc-name">Gesundheit</div><div class="svc-desc"><a href="https://www.medgraechen.ch/en/" target="_blank">Arzt Grächen</a> · <a href="https://apotheke-lagger.ch/" target="_blank">Apotheke Lagger</a> · <a href="https://www.valaishospital.ch/" target="_blank">Spital Visp</a> · <a href="https://www.air-zermatt.ch/de/rettung" target="_blank">Air Zermatt</a></div></div>
+      <div class="svc" onclick="document.getElementById('alpa-panel').classList.add('open');document.getElementById('alpa-fab').classList.add('show')"><span class="svc-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></span><div class="svc-name">ALPA Concierge</div><div class="svc-desc">KI-Assistent 24/7 auf DE · EN · FR. Klicken zum Öffnen.</div></div>
+    </div>
+    <!-- Accordion -->
+    <div class="accordion reveal">
+      <div class="acc-item">
+        <div class="acc-q" onclick="acc(this)"><span>🕓 Check-in · Check-out · Eingang</span><span class="acc-icon">+</span></div>
+        <div class="acc-body"><div class="acc-inner">Check-in ab 16:00 Uhr · Check-out bis 10:00 Uhr<br><br><b>Eingangstüre:</b> Zugangscode wird nach Buchungsbestätigung per E-Mail/SMS zugesendet.<br>Öffnen: Taste drücken → Code + 🔒 → Drehverschluss rechts.<br><br><b>Parking:</b> Central Garage, Bärgji 547 · Parkplatz Nr. 2 (links, Ende Gebäude rechts). 1× inklusive, weitere CHF 8/Tag. <a href="https://maps.app.goo.gl/HQ2Eh2L98GoGXBTN6" target="_blank" style="color:rgba(201,168,76,.6)">Google Maps →</a></div></div>
+      </div>
+      <div class="acc-item">
+        <div class="acc-q" onclick="acc(this)"><span>🧖 Wellness · Sauna Bedienung</span><span class="acc-icon">+</span></div>
+        <div class="acc-body"><div class="acc-inner"><b>Sauna: 2 Stunden täglich inklusive</b><br>1. Schwarzer Knopf neben Sauna-Türe = Hauptschalter (immer zuerst)<br>2. Bedienfeld: links unten = Sauna an · Mitte = Licht<br>3. Musik: iPad an der Wand (Spotify) → Knopf am Anhänger bei Sauna<br><br>⚠️ Nach dem Saunieren bitte gut lüften!</div></div>
+      </div>
+      <div class="acc-item">
+        <div class="acc-q" onclick="acc(this)"><span>🔥 Kamin · Küche · TV</span><span class="acc-icon">+</span></div>
+        <div class="acc-body"><div class="acc-inner">Feuerholz links auf der Terrasse · Anzündehilfen links neben dem Kamin<br>Bitte Kamin vor Abreise reinigen und Asche entsorgen.<br><br>Küche: Raclette/Fondue/Fondue-Chinoise vorhanden · Miele-Einbauofen<br><br>TV: Swisscom TV · Schwarz = Subwoofer · Weiss = TV</div></div>
+      </div>
+      <div class="acc-item">
+        <div class="acc-q" onclick="acc(this)"><span>🛒 Einkaufen · Apotheke · Abfall</span><span class="acc-icon">+</span></div>
+        <div class="acc-body"><div class="acc-inner">Coop, Volg & Denner im Dorfzentrum · Heimlieferung ab CHF 100<br>Bäckerei Z'Pfünderli (sehr empfohlen!)<br><br>Apotheke Lagger am Dorfplatz<br>Spital Spitalzentrum Oberwallis, Visp (35 Min.)<br><br>Abfall: nur orange Säcke (Coop/Volg/Denner) · Entsorgung 50m vom Hotel Hannigalp</div></div>
+      </div>
+      <div class="acc-item">
+        <div class="acc-q" onclick="acc(this)"><span>🧺 Check-out Hinweise</span><span class="acc-icon">+</span></div>
+        <div class="acc-body"><div class="acc-inner">· Bettwäsche abziehen · neben die Waschmaschine im Réduit legen<br>· Küche reinigen · Kamin reinigen und Asche entsorgen<br>· Türe abschliessen<br><br>Kontakt: Caroline +41 79 323 06 74 · hoefenmatt@outlook.com<br><br><em>❤️ Vielen Dank, dass Sie unsere Lodge so behandeln, als wäre es Ihr eigenes Zuhause.</em></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ GRUNDRISS ══════════════════════════════════ -->
+<section id="grundriss" style="background:var(--dark);padding:4rem 0">
+  <div class="container">
+    <div class="reveal" style="text-align:center;margin-bottom:2rem">
+      <span class="sec-label">Architektenplan · architektur-truffer.ch · 2019</span>
+      <h2 class="sec-title">Grundriss <em>Lodge Monte Rosa</em></h2>
+      <div class="divider center"></div>
+      <p style="font-size:.76rem;color:rgba(255,255,255,.33);max-width:480px;margin:0 auto 2rem;line-height:1.7">185 m² Wohnfläche · Garten 200 m² · Terrasse 50 m² · Balkon 30 m²</p>
+    </div>
+    <div class="gr-summary reveal">
+      <div class="gr-card"><span class="gr-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.2"><path d="M20 9V6a2 2 0 00-2-2H6a2 2 0 00-2 2v3"/><path d="M2 11v5a2 2 0 002 2h16a2 2 0 002-2v-5a1 1 0 00-1-1H3a1 1 0 00-1 1z"/><path d="M4 18v2m16-2v2"/></svg></span><div class="gr-name">Wohnen + Essen</div><div class="gr-tag">EG · Panoramafenster</div><div class="gr-note">Monolith-Kamin · Matterhorn-Blick</div></div>
+      <div class="gr-card"><span class="gr-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg></span><div class="gr-name">Sauna + Wellness</div><div class="gr-tag">EG · 40 m² · Premium</div><div class="gr-note">Finn. Sauna · Badewanne · XXL-Dusche</div></div>
+      <div class="gr-card"><span class="gr-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.2"><path d="M2 4v16"/><path d="M2 8h18a2 2 0 012 2v10"/><path d="M2 17h20"/><path d="M6 8v9"/></svg></span><div class="gr-name">3 Doppelzimmer</div><div class="gr-tag">EG + OG</div><div class="gr-note">Je Boxspring · Bergblick</div></div>
+      <div class="gr-card"><span class="gr-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></span><div class="gr-name">Kinderzimmer</div><div class="gr-tag">EG · 3 Schlafplätze</div><div class="gr-note">Stockbett 2×90 + Hochbett 120</div></div>
+      <div class="gr-card"><span class="gr-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="12" y1="3" x2="12" y2="21"/></svg></span><div class="gr-name">Glasbalkon OG</div><div class="gr-tag">OG · 30 m²</div><div class="gr-note">Richtung Zermatt · 4000er</div></div>
+    </div>
+    <div style="text-align:center" class="reveal">
+      <p style="font-size:.72rem;color:rgba(255,255,255,.3);margin-bottom:1.5rem;line-height:1.7">EG: Entrée · Flur/Treppe · WC · Sauna/Wellness · Réduit · Wohnen (Kamin) · Essen · Küche · Doppelzimmer 1 · Kinderzimmer · Balkon EG · Terrasse Süd<br>OG: Master Suite (Balkon) · Bad En-Suite · Gang · Doppelzimmer 2+3 · Bad 2 · Gäste WC · Glasbalkon OG</p>
+      <p style="font-size:.64rem;color:rgba(255,255,255,.18);font-style:italic">Grundriss schematisch · architektur-truffer.ch 2019 · Fussbodenheizung + Parkett</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══ FOOTER ════════════════════════════════════ -->
+<footer>
+  <div class="foot-inner">
+    <div class="foot-logo">Lodge <em>Monte Rosa</em> <span style="font-size:.5rem;color:rgba(255,255,255,.18);margin-left:.5rem">Heimine 616 · 3925 Grächen · VS</span></div>
+    <div class="foot-links">
+      <a href="https://www.airbnb.ch/p/lodgemonterosa" target="_blank">Airbnb</a>
+      <a href="https://www.vrbo.com/de-at/supply/home?propertyId=125377349" target="_blank">VRBO</a>
+      <a href="https://www.bergfex.com/graechen/chalet-lodge-monte-rosa/" target="_blank">Bergfex</a>
+      <a href="https://www.graachen.ch" target="_blank">graachen.ch</a>
+      <a href="#">Datenschutz</a>
+      <a href="#">Impressum</a>
+    </div>
+    <div class="foot-copy">© 2025 · 46.19197°N · 7.83372°E</div>
+  </div>
+</footer>
+
+<!-- ══ LIGHTBOX ══════════════════════════════════ -->
+<div id="lb">
+  <button id="lb-x" onclick="closeLb()">✕</button>
+  <button id="lb-p" onclick="lbNav(-1)">‹</button>
+  <button id="lb-n" onclick="lbNav(1)">›</button>
+  <img id="lb-img" src="" alt="">
+  <div id="lb-cap"></div>
+  <div id="lb-cnt"></div>
+</div>
+
+<!-- ══ ALPA CONCIERGE ════════════════════════════ -->
+<div id="alpa-fab">
+  <div class="fab-lbl">ALPA · Alpine Concierge</div>
+  <div class="fab-btns">
+    <a href="https://wa.me/41793230674?text=Hallo%20Caroline" target="_blank" class="fab-btn fab-wa" title="WhatsApp">💬</a>
+    <div style="position:relative">
+      <button class="fab-btn fab-ai" onclick="toggleAlpa()" title="ALPA Concierge">✨</button>
+      <div class="fab-dot"></div>
+    </div>
+  </div>
+</div>
+
+<div id="alpa-panel">
+  <div class="chat-hd">
+    <div><div class="chat-title">✨ ALPA — Alpine Concierge</div><div class="chat-sub">Ihr persönlicher Assistent · DE · EN · FR</div></div>
+    <button class="chat-close" onclick="toggleAlpa()">✕</button>
+  </div>
+  <div class="chat-sugs">
+    <button class="chat-sug" onclick="sendSug(this)">Check-in Infos</button>
+    <button class="chat-sug" onclick="sendSug(this)">Sauna Bedienung</button>
+    <button class="chat-sug" onclick="sendSug(this)">Restaurants Grächen</button>
+    <button class="chat-sug" onclick="sendSug(this)">Zermatt Ausflug</button>
+    <button class="chat-sug" onclick="sendSug(this)">Preis anfragen</button>
+  </div>
+  <div class="chat-msgs" id="chat-msgs">
+    <div class="msg bot">Grüezi! Ich bin ALPA, Ihr persönlicher Alpine Concierge der Lodge Monte Rosa 🏔️ Wie kann ich Ihnen helfen? (DE · EN · FR)</div>
+  </div>
+  <div class="chat-inp-row">
+    <input class="chat-inp" id="chat-in" placeholder="Stellen Sie Ihre Frage..." onkeydown="if(event.key==='Enter')sendChat()">
+    <button class="chat-send" onclick="sendChat()">›</button>
+  </div>
+</div>
+
+<!-- ══ JAVASCRIPT ════════════════════════════════ -->
+<script>
+// ── PHOTOS for lightbox ─────────────────────────
+const PHOTOS = [
+  {s:'int-wohnen.jpeg',c:'Wohnzimmer · Panorama-Kamin · Bergblick'},
+  {s:'int-wohnen2.png',c:'Wohn-Ess-Küche · Kronleuchter'},
+  {s:'int-kueche.jpeg',c:'Küche & Essen · Inselblock · Miele'},
+  {s:'int-tvwall.png',c:'TV-Wand in Holzscheiben-Wand'},
+  {s:'int-gang.png',c:'Korridor · Holzscheiben-Wand beleuchtet'},
+  {s:'int-treppe.png',c:'Holztreppe · Offene Stufen'},
+  {s:'int-sz1.jpeg',c:'Doppelzimmer 1 · Boxspring · Bergfenster'},
+  {s:'int-sz2.jpeg',c:'Doppelzimmer 2 · Balkonzugang'},
+  {s:'int-kinderzimmer.png',c:'Kinderzimmer · Stockbett 2x90x200 + Hochbett'},
+  {s:'int-sz3.png',c:'Doppelzimmer 3 · Boxspring · Balkon · Sommerblick'},
+  {s:'int-fenster-berg.png',c:'Ausblick aus dem Bett · Walliser Viertausender'},
+  {s:'int-wellness3.png',c:'Wellness · Badewanne · Buddha-Wandbild'},
+  {s:'int-sauna.jpeg',c:'Sauna · Finnische Holzsauna · Bergfenster'},
+  {s:'int-saunabereich.jpeg',c:'Wellness-Bereich · Sauna + Dampfdusche'},
+  {s:'int-steinwaschbecken.png',c:'Naturstein-Waschbecken · Teak'},
+  {s:'int-dusche.jpeg',c:'XXL-Regendusche · Glasfront'},
+  {s:'int-bad3.png',c:'Bad · Glasdusche · Teak'},
+  {s:'int-wc.jpeg',c:'Gaeste-WC · Rundbogen-Fenster'},
+  {s:'ext-terrasse-sommer.png',c:'Terrasse Sommer · Grächen Tal'},
+  {s:'front-winter.jpeg',c:'Frontansicht Winter · Bergpanorama'},
+  {s:'IMG_2712.jpeg',c:'Terrasse OG · Holzbalkon · Herbst'},
+  {s:'IMG_2718.jpeg',c:'Südseite · Panoramaverglasung'},
+  {s:'IMG_2749.jpeg',c:'Bergpanorama · Viertausender'},
+  {s:'IMG_2755.jpeg',c:'Sonnenblick · Alpengipfel'},
+  {s:'view1.jpeg',c:'Panorama Balkon OG · Monte Rosa + Dom'},
+  {s:'view2.jpeg',c:'Aussenansicht · Holzfassade'},
+];
+let lbI = 0;
+function lb(i){
+  lbI=i;
+  const el=document.getElementById('lb');
+  el.style.display='flex';
+  document.getElementById('lb-img').src=PHOTOS[i].s;
+  document.getElementById('lb-cap').textContent=PHOTOS[i].c;
+  document.getElementById('lb-cnt').textContent=(i+1)+' / '+PHOTOS.length;
+  document.body.style.overflow='hidden';
+}
+function closeLb(){
+  document.getElementById('lb').style.display='none';
+  document.body.style.overflow='';
+}
+function lbNav(d){lbI=(lbI+d+PHOTOS.length)%PHOTOS.length;lb(lbI);}
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape')closeLb();
+  if(e.key==='ArrowLeft')lbNav(-1);
+  if(e.key==='ArrowRight')lbNav(1);
+});
+
+// ── GALLERY FILTER ──────────────────────────────
+function gf(f,btn){
+  document.querySelectorAll('.gf-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  document.querySelectorAll('.gi[data-cat]').forEach(el=>{
+    el.style.display=(f==='alle'||el.dataset.cat===f)?'':'none';
+  });
+}
+
+// ── LANDING ─────────────────────────────────────
+let landDone=false;
+function goLanding(){
+  if(landDone)return;
+  landDone=true;
+  const bg=document.getElementById('landing-bg');
+  bg.style.transition='transform 3.2s ease-in, filter 3.2s ease-in';
+  bg.style.transform='scale(3.5)';
+  bg.style.filter='grayscale(0%) brightness(.65) contrast(1.1) saturate(1.2)';
+  setTimeout(()=>{
+    const s=document.getElementById('landing');
+    s.style.transition='opacity 1.1s ease';
+    s.style.opacity='0';
+    s.style.pointerEvents='none';
+    document.body.style.overflow='';
+    document.getElementById('hero').classList.add('visible');
+    setTimeout(runFlyover, 400);
+    setTimeout(()=>{s.style.display='none';},1300);
+  },3000);
+}
+function skipLanding(){
+  if(landDone)return;
+  landDone=true;
+  const s=document.getElementById('landing');
+  s.style.transition='opacity .5s';
+  s.style.opacity='0';
+  s.style.pointerEvents='none';
+  document.body.style.overflow='';
+  document.getElementById('hero').classList.add('visible');
+  setTimeout(()=>{s.style.display='none';startDrone();},600);
+}
+document.addEventListener('DOMContentLoaded',()=>{
+  document.body.style.overflow='hidden';
+  // Parallax on landing
+  const bg=document.getElementById('landing-bg');
+  document.getElementById('landing').addEventListener('mousemove',e=>{
+    if(landDone)return;
+    const rx=(e.clientX/window.innerWidth-.5)*8;
+    const ry=(e.clientY/window.innerHeight-.5)*5;
+    bg.style.transform=`scale(1.05) translate(${rx}px,${ry}px)`;
+  });
+  // Auto-open ALPA after 15s
+  if(!sessionStorage.getItem('alpaShown')){
+    setTimeout(()=>{
+      if(landDone){
+        document.getElementById('alpa-panel').classList.add('open');
+        document.getElementById('alpa-fab').classList.add('show');
+        sessionStorage.setItem('alpaShown','1');
+      }
+    },15000);
+  }
+});
+
+// ══════════════════════════════════════════════════════
+//  MAP FLYOVER: Europa → Schweiz → Wallis → Grächen
+// ══════════════════════════════════════════════════════
+let flyMap = null;
+let flyStep = 0;
+let flyDone = false;
+
+const FLY_STEPS = [
+  { lat:48.5, lng:10.0,  z:4,  dur:2200, label:'Europa',          phase:'Anflug',     alt:'12000 m' },
+  { lat:46.8, lng:8.2,   z:7,  dur:2000, label:'Schweiz',         phase:'Einflug CH', alt:'5500 m'  },
+  { lat:46.4, lng:7.95,  z:9,  dur:1800, label:'Wallis',          phase:'Wallis VS',  alt:'2800 m'  },
+  { lat:46.28,lng:7.88,  z:11, dur:1600, label:'Visp · Saas-Fee', phase:'Visp/Saas',  alt:'1200 m'  },
+  { lat:46.21,lng:7.845, z:13, dur:1500, label:'Grächen',         phase:'Grächen',    alt:'500 m'   },
+  { lat:46.195,lng:7.836,z:15, dur:1400, label:'Heimine 616',     phase:'Anflug',     alt:'220 m'   },
+  { lat:46.19197,lng:7.83372,z:18,dur:2500,label:'Lodge Monte Rosa ⭐',phase:'Zielanflug',alt:'55 m'},
+];
+
+function initFlyMap() {
+  if(flyMap) return;
+  flyMap = L.map('fly-map', {
+    zoomControl: false,
+    attributionControl: false,
+    dragging: false,
+    scrollWheelZoom: false,
+    doubleClickZoom: false,
+    keyboard: false,
+    zoomAnimation: true,
+    fadeAnimation: true,
+  });
+  // Satellite tiles
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+    maxZoom: 19, attribution: ''
+  }).addTo(flyMap);
+  // Label overlay
+  L.tileLayer('https://stamen-tiles.a.ssl.fastly.net/toner-hybrid/{z}/{x}/{y}.png', {
+    maxZoom: 19, opacity: 0.45, attribution: ''
+  }).addTo(flyMap);
+  flyMap.setView([48.5, 10.0], 4);
+}
+
+function runFlyover() {
+  initFlyMap();
+  const hud = document.getElementById('fly-hud');
+  const bar = document.getElementById('fly-bar');
+  const mBtn = document.getElementById('music-btn');
+  hud.style.opacity = '1';
+  bar.style.opacity = '1';
+  mBtn.style.opacity = '1';
+  runStep(0);
+}
+
+function runStep(i) {
+  if(flyDone || i >= FLY_STEPS.length) {
+    // Flyover done → switch to photo drone
+    setTimeout(switchToPhotoDrone, 800);
+    return;
+  }
+  const s = FLY_STEPS[i];
+  flyStep = i;
+  document.getElementById('fly-loc').textContent   = s.label;
+  document.getElementById('fly-phase').textContent  = s.phase;
+  document.getElementById('fly-alt').textContent    = s.alt;
+  // Animate map
+  flyMap.flyTo([s.lat, s.lng], s.z, {
+    animate: true,
+    duration: s.dur / 1000,
+    easeLinearity: 0.3,
+  });
+  // Lodge marker at last step
+  if(i === FLY_STEPS.length - 1) {
+    const goldIcon = L.divIcon({
+      html: '<div style="width:14px;height:14px;border-radius:50%;background:rgba(201,168,76,1);border:2px solid #fff;box-shadow:0 0 12px rgba(201,168,76,.8);animation:none"></div>',
+      className: '', iconAnchor: [7,7]
+    });
+    L.marker([46.19197, 7.83372], {icon: goldIcon})
+      .bindPopup('<div style="font-family:Georgia,serif;font-size:.85rem;color:#1a2b1c;padding:4px 8px"><b>Lodge Monte Rosa</b><br><span style="font-size:.72rem;color:#4a6c4a">Heimine 616 · 3925 Grächen</span></div>', {closeButton:false})
+      .addTo(flyMap)
+      .openPopup();
+  }
+  setTimeout(() => runStep(i + 1), s.dur + 400);
+}
+
+function skipFlyover() {
+  flyDone = true;
+  switchToPhotoDrone();
+}
+
+function switchToPhotoDrone() {
+  flyDone = true;
+  const mapDiv   = document.getElementById('map-drone');
+  const photoDiv = document.getElementById('photo-drone');
+  mapDiv.style.transition   = 'opacity 1s ease';
+  mapDiv.style.opacity      = '0';
+  photoDiv.style.display    = 'block';
+  photoDiv.style.opacity    = '0';
+  photoDiv.style.transition = 'opacity 1s ease .3s';
+  setTimeout(() => { photoDiv.style.opacity = '1'; }, 50);
+  setTimeout(() => {
+    mapDiv.style.display = 'none';
+    startDrone();
+    // Destroy map to free memory
+    if(flyMap){ flyMap.remove(); flyMap=null; }
+  }, 1400);
+}
+
+function backToMap() {
+  // Reset and redo flyover
+  flyDone = false;
+  flyStep = 0;
+  const photoDiv = document.getElementById('photo-drone');
+  const mapDiv   = document.getElementById('map-drone');
+  photoDiv.style.transition = 'opacity .5s';
+  photoDiv.style.opacity    = '0';
+  setTimeout(() => {
+    photoDiv.style.display = 'none';
+    mapDiv.style.display   = 'block';
+    mapDiv.style.opacity   = '0';
+    mapDiv.style.transition = 'opacity .5s';
+    setTimeout(() => {
+      mapDiv.style.opacity = '1';
+      initFlyMap();
+      runFlyover();
+    }, 100);
+  }, 600);
+}
+
+// ══════════════════════════════════════════════════════
+//  MUSIC
+// ══════════════════════════════════════════════════════
+let musicOn = false;
+function toggleMusic() {
+  const audio = document.getElementById('bg-music');
+  const dot   = document.getElementById('music-dot');
+  const lbl   = document.getElementById('music-lbl');
+  const btn   = document.getElementById('music-btn');
+  if(!audio.src || audio.src === window.location.href) {
+    // No audio file yet — show info
+    lbl.textContent = '♪ Keine Audiodatei';
+    setTimeout(() => { lbl.textContent = '♪ Musik'; }, 2000);
+    return;
+  }
+  if(musicOn) {
+    audio.pause(); musicOn = false;
+    dot.style.background = 'rgba(201,168,76,.4)';
+    dot.style.animation  = 'none';
+    lbl.textContent = '♪ Musik'; btn.style.color = 'rgba(255,255,255,.5)';
+    btn.style.borderColor = 'rgba(201,168,76,.22)';
+  } else {
+    audio.volume = 0.22;
+    audio.play().then(() => {
+      musicOn = true;
+      dot.style.background  = '#4caf50';
+      dot.style.animation   = 'blip 1.5s infinite';
+      lbl.textContent = '⏸ Musik'; btn.style.color = 'var(--gold)';
+      btn.style.borderColor = 'rgba(201,168,76,.5)';
+    }).catch(() => { lbl.textContent = '♪ Kein Audio'; });
+  }
+}
+// Auto-start music on first user interaction
+let musicAutoTried = false;
+document.addEventListener('click', () => {
+  if(musicAutoTried) return;
+  musicAutoTried = true;
+  const audio = document.getElementById('bg-music');
+  if(audio.querySelector('source')) {
+    audio.volume = 0.18;
+    audio.play().then(() => {
+      musicOn = true;
+      document.getElementById('music-dot').style.background = '#4caf50';
+      document.getElementById('music-lbl').textContent = '⏸ Musik';
+    }).catch(() => {});
+  }
+}, {once: false});
+
+// ══════════════════════════════════════════════════════
+//  PHOTO DRONE TOUR
+// ══════════════════════════════════════════════════════
+const SHOTS=[
+  {src:'view2.jpeg',     side:'Anflug',     alt:'180 m',dir:0},
+  {src:'front-winter.jpeg',side:'Nordseite',alt:'50 m', dir:0},
+  {src:'IMG_2715.jpeg',  side:'Ostseite',   alt:'50 m', dir:90},
+  {src:'IMG_2712.jpeg',  side:'Süd OG',     alt:'45 m', dir:180},
+  {src:'IMG_2718.jpeg',  side:'Süd EG',     alt:'40 m', dir:180},
+  {src:'ext-terrasse-sommer.png',side:'Südwest',alt:'45 m',dir:225},
+  {src:'IMG_2749.jpeg',  side:'Panorama',   alt:'55 m', dir:270},
+  {src:'view1.jpeg',     side:'Finale',     alt:'60 m', dir:315},
+];
+let di=0, dPlay=false, dTimer=null;
+
+function buildThumbs(){
+  const cont=document.getElementById('drone-thumbs');
+  if(!cont) return;
+  cont.innerHTML='';
+  SHOTS.forEach((s,i)=>{
+    const d=document.createElement('div');
+    d.className='dthumb'+(i===0?' on':'');
+    d.id='dt'+i;
+    d.onclick=()=>droneTo(i);
+    d.innerHTML=`<img src="${s.src}" alt="${s.side}" loading="lazy"><div class="dthumb-label">${s.side}</div>`;
+    cont.appendChild(d);
+  });
+}
+
+function droneShow(i){
+  di=i;
+  const s=SHOTS[i];
+  const img=document.getElementById('drone-img');
+  if(img){
+    img.style.opacity='0';
+    setTimeout(()=>{ img.src=s.src; img.style.opacity='1'; },200);
+  }
+  const hs=document.getElementById('hud-side'), ha=document.getElementById('hud-alt');
+  const nd=document.getElementById('needle');
+  if(hs) hs.textContent=s.side;
+  if(ha) ha.textContent=s.alt;
+  if(nd) nd.style.transform=`translate(-50%,-100%) rotate(${s.dir}deg)`;
+  document.querySelectorAll('.dthumb').forEach((el,j)=>{
+    el.classList.toggle('on',j===i);
+    if(j===i) el.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
+  });
+}
+
+function startDrone(){
+  buildThumbs();
+  const comp=document.getElementById('compass'), hud=document.getElementById('hud');
+  const ctrl=document.getElementById('drone-ctrl');
+  if(comp) comp.style.opacity='1';
+  if(hud)  hud.style.opacity='1';
+  if(ctrl) ctrl.style.opacity='1';
+  dPlay=true;
+  droneShow(0);
+  dTimer=setInterval(()=>{ droneShow((di+1)%SHOTS.length); },4500);
+  document.getElementById('alpa-fab').classList.add('show');
+}
+
+function toggleDrone(){
+  dPlay=!dPlay;
+  const b=document.getElementById('play-btn');
+  if(dPlay){
+    b.textContent='⏸ Rundflug'; b.classList.add('on');
+    dTimer=setInterval(()=>{ droneShow((di+1)%SHOTS.length); },4500);
+  } else {
+    b.textContent='▶ Rundflug'; b.classList.remove('on');
+    clearInterval(dTimer);
+  }
+}
+function resetDrone(){ clearInterval(dTimer); dPlay=false; di=0; droneShow(0); const b=document.getElementById('play-btn'); if(b){b.textContent='▶ Rundflug';b.classList.remove('on');} }
+function droneTo(i){ clearInterval(dTimer); droneShow(i); if(dPlay){ dTimer=setInterval(()=>{ droneShow((di+1)%SHOTS.length); },4500); } }
+
+
+// ── NAV SCROLL ──────────────────────────────────
+let _scrolling=false;
+function goTo(id){
+  const el=document.getElementById(id);
+  if(!el) return;
+  _scrolling=true;
+  setTimeout(()=>_scrolling=false,800);
+  // Set active immediately
+  document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active'));
+  const nl=document.getElementById('nl-'+id);
+  if(nl)nl.classList.add('active');
+  el.scrollIntoView({behavior:'smooth',block:'start'});
+}
+window.addEventListener('scroll',()=>{
+  if(_scrolling) return;
+  document.getElementById('nav').classList.toggle('scrolled',window.scrollY>60);
+  // Find section closest to top of viewport
+  const sections=['hero','galerie','umgebung','buchen','services','grundriss'];
+  let current='hero';
+  sections.forEach(id=>{
+    const el=document.getElementById(id);
+    if(el){
+      const rect=el.getBoundingClientRect();
+      if(rect.top<=150) current=id;
+    }
+  });
+  document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active'));
+  const nl=document.getElementById('nl-'+current);
+  if(nl)nl.classList.add('active');
+});
+
+// ── SEASON ──────────────────────────────────────
+function setSeason(s){
+  document.querySelectorAll('.season-btn').forEach(b=>b.classList.remove('active'));
+  const b=document.getElementById('sb-'+s);
+  if(b)b.classList.add('active');
+  const imgs={winter:'front-winter.jpeg',sommer:'ext-terrasse-sommer.png',herbst:'view1.jpeg'};
+  if(imgs[s]&&document.getElementById('drone-img')){document.getElementById('drone-img').src=imgs[s];}
+}
+// Auto-detect
+(()=>{const m=new Date().getMonth();setSeason(m>=11||m<=2?'winter':m>=6&&m<=8?'sommer':'herbst');})();
+
+// ── LANG ────────────────────────────────────────
+const TRANSLATIONS = {
+  de: {
+    'nav-chalet':'Chalet','nav-galerie':'Galerie','nav-graeschen':'Grächen',
+    'nav-verfug':'Verfügbarkeit','nav-services':'Services','nav-cta':'✉ Anfragen',
+    'hero-tag':'Your Luxury Alpine Escape',
+    'hero-btn1':'✉ Jetzt anfragen','hero-btn2':'📸 Galerie','hero-btn3':'🎬 Video',
+    'gal-title':'Die Lodge von innen & aussen',
+    'gal-all':'Alle','gal-wohnen':'Wohnen','gal-schlafen':'Schlafen',
+    'gal-wellness':'Wellness · Sauna','gal-bad':'Bad','gal-aussen':'Aussen · Terrassen',
+    'rev-fav':'Gäste-Favorit','rev-subtitle':'Eine der beliebtesten Unterkünfte auf Airbnb',
+    'umb-title':'7 Erlebnisse rundum',
+    'book-title':'Verfügbarkeit & Preise','book-direct':'Direktbuchung',
+    'book-sub':'Ohne Plattformgebühren — persönlich. Antwort innerhalb weniger Stunden.',
+    'calc-title':'Preisrechner','calc-sub':'Sofortpreis + Vergleich mit Airbnb',
+    'calc-arrive':'Anreise','calc-depart':'Abreise','calc-guests':'Gäste',
+    'calc-btn':'Preis berechnen →',
+    'svc-title':'Alles was Sie brauchen',
+    'storno-good':'100% Rückerstattung','storno-bad':'Keine Rückerstattung',
+    'storno-note':'Reiseversicherung empfohlen.',
+  },
+  en: {
+    'nav-chalet':'Chalet','nav-galerie':'Gallery','nav-graeschen':'Grächen',
+    'nav-verfug':'Availability','nav-services':'Services','nav-cta':'✉ Enquire',
+    'hero-tag':'Your Luxury Alpine Escape',
+    'hero-btn1':'✉ Enquire now','hero-btn2':'📸 Gallery','hero-btn3':'🎬 Video',
+    'gal-title':'Inside & outside',
+    'gal-all':'All','gal-wohnen':'Living','gal-schlafen':'Bedrooms',
+    'gal-wellness':'Wellness · Sauna','gal-bad':'Bathroom','gal-aussen':'Exterior',
+    'rev-fav':'Guest Favourite','rev-subtitle':'One of the most popular properties on Airbnb',
+    'umb-title':'7 experiences nearby',
+    'book-title':'Availability & Prices','book-direct':'Direct Booking',
+    'book-sub':'No platform fees — personal service. Reply within a few hours.',
+    'calc-title':'Price Calculator','calc-sub':'Instant price + Airbnb comparison',
+    'calc-arrive':'Arrival','calc-depart':'Departure','calc-guests':'Guests',
+    'calc-btn':'Calculate price →',
+    'svc-title':'Everything you need',
+    'storno-good':'Full refund','storno-bad':'No refund',
+    'storno-note':'Travel insurance recommended.',
+  },
+  fr: {
+    'nav-chalet':'Chalet','nav-galerie':'Galerie','nav-graeschen':'Grächen',
+    'nav-verfug':'Disponibilité','nav-services':'Services','nav-cta':'✉ Demander',
+    'hero-tag':'Votre Escapade Alpine de Luxe',
+    'hero-btn1':'✉ Demander','hero-btn2':'📸 Galerie','hero-btn3':'🎬 Vidéo',
+    'gal-title':'Le Lodge intérieur & extérieur',
+    'gal-all':'Tout','gal-wohnen':'Séjour','gal-schlafen':'Chambres',
+    'gal-wellness':'Wellness · Sauna','gal-bad':'Salle de bain','gal-aussen':'Extérieur',
+    'rev-fav':'Favori des hôtes','rev-subtitle':'Un des hébergements les plus appréciés sur Airbnb',
+    'umb-title':'7 expériences autour',
+    'book-title':'Disponibilité & Tarifs','book-direct':'Réservation directe',
+    'book-sub':'Sans frais de plateforme — réponse rapide.',
+    'calc-title':'Calculateur de prix','calc-sub':'Prix immédiat + comparaison Airbnb',
+    'calc-arrive':'Arrivée','calc-depart':'Départ','calc-guests':'Hôtes',
+    'calc-btn':'Calculer →',
+    'svc-title':'Tout ce dont vous avez besoin',
+    'storno-good':'Remboursement complet','storno-bad':'Aucun remboursement',
+    'storno-note':'Assurance voyage recommandée.',
+  }
+};
+
+function setLang(l){
+  document.querySelectorAll('.lang-btn').forEach(b=>b.classList.remove('active'));
+  const b=document.getElementById('lb-'+l);
+  if(b)b.classList.add('active');
+  const t=TRANSLATIONS[l]||TRANSLATIONS['de'];
+  document.querySelectorAll('[data-t]').forEach(el=>{
+    const key=el.getAttribute('data-t');
+    if(t[key]) el.textContent=t[key];
+  });
+}
+
+// ── ACTIVITIES SEASON ───────────────────────────
+function showSeason(s,btn){
+  document.querySelectorAll('.scontent').forEach(el=>el.classList.remove('on'));
+  document.querySelectorAll('.stab').forEach(b=>b.classList.remove('on'));
+  document.getElementById('sc-'+s).classList.add('on');
+  btn.classList.add('on');
+}
+
+// ── ACCORDION ───────────────────────────────────
+function acc(q){
+  const item=q.parentElement;
+  const open=item.classList.contains('open');
+  document.querySelectorAll('.acc-item').forEach(i=>i.classList.remove('open'));
+  if(!open)item.classList.add('open');
+}
+
+// ── PRICE CALC ──────────────────────────────────
+const PRICE_TABLE=[
+  {m:[3,4,5],w:2800},{m:[8,9],w:3000},{m:[2,10],w:3200},
+  {m:[6,7],w:4200},{m:[11,0,1],w:4200}
+];
+function weeklyRate(d){
+  const m=d.getMonth(),day=d.getDate();
+  if(m===11&&day>=28)return 6500;
+  if(m===0&&day<=3)return 6500;
+  if(m===11&&day>=23)return 6000;
+  if(m===0&&day<=10)return 5000;
+  if(m===1)return 4500;
+  const p=PRICE_TABLE.find(x=>x.m.includes(m));
+  return p?p.w:3200;
+}
+function calcP(){
+  const a=document.getElementById('pc-a').value;
+  const d=document.getElementById('pc-d').value;
+  if(!a||!d)return;
+  const arr=new Date(a),dep=new Date(d);
+  if(dep<=arr)return;
+  const nights=Math.round((dep-arr)/86400000);
+  let base=0;
+  for(let i=0;i<nights;i++){const dt=new Date(arr);dt.setDate(arr.getDate()+i);base+=weeklyRate(dt)/7;}
+  base=Math.round(base);
+  const g=parseInt(document.getElementById('pc-g').value);
+  const pet=document.getElementById('pc-pet').checked;
+  const extra=Math.max(0,g-6)*70*nights;
+  const petFee=pet?10*nights:0;
+  const clean=350,kaution=500,kurtaxe=Math.round(3.8*g*nights);
+  const total=base+extra+petFee+clean;
+  const airbnb=Math.round((base+clean)*1.14);
+  const save=airbnb-total;
+  let html=`<div class="pc-row"><span>Unterkunft (${nights} Nächte)</span><span>CHF ${base.toLocaleString('de-CH')}</span></div>`;
+  if(extra>0)html+=`<div class="pc-row"><span>Extra-Gäste (${g-6}× CHF 70/Nacht)</span><span>CHF ${extra.toLocaleString('de-CH')}</span></div>`;
+  if(petFee>0)html+=`<div class="pc-row"><span>Haustier (CHF 10/Tag)</span><span>CHF ${petFee}</span></div>`;
+  html+=`<div class="pc-row"><span>Endreinigung</span><span>CHF 350</span></div>`;
+  html+=`<div class="pc-row" style="font-size:.62rem;color:rgba(255,255,255,.28)"><span>Kaution (Rückgabe)</span><span>CHF 500</span></div>`;
+  html+=`<div class="pc-row" style="font-size:.62rem;color:rgba(255,255,255,.28)"><span>Kurtaxe ~CHF 3.80/P/Nacht</span><span>~CHF ${kurtaxe}</span></div>`;
+  html+=`<div class="pc-total pc-row"><span>Total Direktbuchung</span><span>CHF ${total.toLocaleString('de-CH')}</span></div>`;
+  if(save>0)html+=`<div class="pc-saving">💰 CHF ${save.toLocaleString('de-CH')} günstiger als Airbnb (dort ~CHF ${airbnb.toLocaleString('de-CH')})</div>`;
+  html+=`<div style="margin-top:.5rem;font-size:.62rem;color:rgba(100,200,100,.65)">✓ Bettwäsche & Handtücher inklusive · ✓ Sauna inklusive</div>`;
+  if(nights>=7) html+=`<div style="font-size:.62rem;color:rgba(100,200,100,.65)">✓ Elektrotaxi Anreise & Abreise inklusive (CHF 40 Wert)</div>`;
+  const r=document.getElementById('calc-res');
+  r.innerHTML=html;r.classList.add('show');
+}
+
+// ── REVEAL ON SCROLL ────────────────────────────
+const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in');});},{threshold:.1});
+document.addEventListener('DOMContentLoaded',()=>{document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));});
+
+// ── ALPA CONCIERGE ──────────────────────────────
+const SYS=`Du bist ALPA, der persönliche Alpine Concierge der Lodge Monte Rosa in Graechen, Wallis. Antworte in der Sprache des Gastes (DE/EN/FR). Sei freundlich, hilfsbereit und kurz.
+Wichtige Infos: Check-in 16:00, Check-out 10:00. Code per E-Mail nach Buchung. Parking Central Garage Baergji 547, Nr.2. Sauna 2h/Tag inkl., schwarzer Knopf = Hauptschalter. Kamin: Holz links auf Terrasse. Kurtaxe CHF 3.80/P/Nacht. Kaution CHF 500. Endreinigung CHF 350. Haustier CHF 10/Tag. Extra-Gaeste ab 7. Person CHF 70/Nacht. Bettwaesche & Handtuecher inklusive. Kontakt: Caroline +41 79 323 06 74, hoefenmatt@outlook.com. Zermatt 45 Min., Saas-Fee 35 Min., Leukerbad 50 Min. Stornierung: 100% Rueckerstattung bis 30 Tage, danach keine. E-Taxi: GRATIS bei 7+ Naechten (sonst CHF 40 retour). Einkauf-Lieferung: Coop/Volg/Denner liefert ab CHF 100 direkt ins Chalet - vor Anreise bestellen empfohlen!`;
+
+function toggleAlpa(){
+  const p=document.getElementById('alpa-panel');
+  p.classList.toggle('open');
+}
+function sendSug(btn){document.getElementById('chat-in').value=btn.textContent;sendChat();}
+async function sendChat(){
+  const inp=document.getElementById('chat-in');
+  const msgs=document.getElementById('chat-msgs');
+  const txt=inp.value.trim();
+  if(!txt)return;
+  inp.value='';
+  msgs.innerHTML+=`<div class="msg user">${txt}</div>`;
+  msgs.innerHTML+=`<div class="msg loading" id="thinking">…</div>`;
+  msgs.scrollTop=msgs.scrollHeight;
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:500,system:SYS,messages:[{role:'user',content:txt}]})
+    });
+    const data=await r.json();
+    const reply=data.content?.[0]?.text||'Bitte kontaktieren Sie uns direkt: +41 79 323 06 74';
+    document.getElementById('thinking')?.remove();
+    msgs.innerHTML+=`<div class="msg bot">${reply}</div>`;
+  }catch{
+    document.getElementById('thinking')?.remove();
+    msgs.innerHTML+=`<div class="msg bot">Bitte kontaktieren Sie uns direkt: +41 79 323 06 74 oder hoefenmatt@outlook.com</div>`;
+  }
+  msgs.scrollTop=msgs.scrollHeight;
+}
+
+function openVideo(){
+  const m=document.getElementById('video-modal');
+  const fr=document.getElementById('yt-frame');
+  fr.src=fr.dataset.src;
+  m.style.display='flex';
+  document.body.style.overflow='hidden';
+}
+function closeVideo(){
+  document.getElementById('yt-frame').src='';
+  document.getElementById('video-modal').style.display='none';
+  document.body.style.overflow='';
+}
+</script>
+
+<!-- VIDEO MODAL -->
+<div id="video-modal" onclick="if(event.target===this)closeVideo()" style="display:none;position:fixed;inset:0;z-index:3000;background:rgba(0,0,0,.95);align-items:center;justify-content:center;flex-direction:column;gap:.8rem;">
+  <button onclick="closeVideo()" style="position:fixed;top:1rem;right:1rem;background:none;border:none;color:rgba(255,255,255,.4);font-size:2rem;cursor:pointer;z-index:1">✕</button>
+  <div style="position:relative;width:min(900px,92vw);padding-bottom:min(56.25%,52vh);background:#000;">
+    <iframe id="yt-frame"
+      src=""
+      data-src="https://www.youtube-nocookie.com/embed/BkT9OC6n4HM?autoplay=1&rel=0&modestbranding=1&color=white"
+      style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;"
+      allow="autoplay; fullscreen" allowfullscreen>
+    </iframe>
+  </div>
+  <div style="font-family:'Cormorant Garamond',serif;font-size:1rem;font-style:italic;color:rgba(255,255,255,.4)">Lodge Monte Rosa · Grächen Wallis · Drohnenfilm</div>
+</div>
+
+</body>
+</html>
