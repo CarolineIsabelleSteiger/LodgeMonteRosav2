@@ -60,7 +60,7 @@ button{cursor:pointer;font-family:var(--sans)}
 }
 #l-coords{
   font-family:var(--serif);font-style:italic;
-  font-size:clamp(1.2rem,3vw,2.2rem);font-weight:300;
+  font-size:clamp(.95rem,3vw,2.2rem);font-weight:300;
   color:rgba(255,255,255,.88);letter-spacing:.1em;line-height:1.6;
   pointer-events:all;cursor:pointer;
   opacity:0;animation:fadeUp .8s .8s ease forwards;
@@ -208,8 +208,8 @@ button{cursor:pointer;font-family:var(--sans)}
   padding:0 3rem 5.5rem;
 }
 .h-eye{font-size:.6rem;font-weight:700;letter-spacing:.32em;text-transform:uppercase;color:var(--gold);margin-bottom:.7rem}
-.h-title{font-family:var(--serif);font-size:clamp(3rem,7vw,6.5rem);line-height:.9;margin-bottom:.6rem}
-.h-tag{font-family:var(--serif);font-size:clamp(1rem,2.2vw,1.6rem);font-weight:300;font-style:italic;color:rgba(255,255,255,.62);margin-bottom:1.8rem}
+.h-title{font-family:var(--serif);font-size:clamp(1.8rem,5vw,6.5rem);line-height:.95;margin-bottom:.6rem}
+.h-tag{font-family:var(--serif);font-size:clamp(.85rem,2vw,1.6rem);font-weight:300;font-style:italic;color:rgba(255,255,255,.62);margin-bottom:1.8rem}
 .h-stats{display:flex;gap:1.8rem;flex-wrap:wrap;margin-bottom:2rem}
 .h-stat{border-left:1px solid rgba(201,168,76,.4);padding-left:.8rem}
 .h-stat-v{font-family:var(--serif);font-size:1.25rem;font-weight:300;color:var(--gl);line-height:1}
@@ -275,7 +275,7 @@ button{cursor:pointer;font-family:var(--sans)}
 /* ════════════════════════════════════
    SECTION COMMONS
 ════════════════════════════════════ */
-section{padding:5rem 0;position:relative;scroll-margin-top:60px}
+section{padding:5rem 0;position:relative;}
 .container{max-width:1200px;margin:0 auto;padding:0 2.5rem}
 .sec-label{display:block;font-size:.58rem;font-weight:700;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);margin-bottom:.6rem}
 .sec-title{font-family:var(--serif);font-size:clamp(1.8rem,4vw,3rem);line-height:1.1;margin-bottom:.5rem}
@@ -577,7 +577,21 @@ footer{
   .gal-grid{grid-template-columns:repeat(2,1fr)}
   .gi.w2{grid-column:span 1;aspect-ratio:4/3}
   .h-stats{display:none}
-  section{padding:3rem 0}
+  section{padding:2.5rem 0}
+  .h-btns{flex-direction:column;gap:.5rem}
+  .btn-gold,.btn-outline{justify-content:center;padding:.7rem 1.2rem;font-size:.6rem}
+  .book-grid{grid-template-columns:1fr}
+  .container{padding:0 1rem}
+  .nav-logo-text{font-size:.88rem}
+  .l-eye{font-size:.5rem;letter-spacing:.3em}
+  .l-alt{font-size:.48rem}
+  .l-hint{font-size:.46rem}
+}
+@media(max-width:420px){
+  .gal-grid{grid-template-columns:1fr}
+  #nav{padding:.6rem 1rem}
+  .season-sw{display:none}
+  .h-title{font-size:clamp(1.6rem,8vw,3rem)!important}
 }
 @media(max-width:420px){
   .gal-grid{grid-template-columns:1fr}
@@ -685,11 +699,11 @@ footer{
       <span id="music-lbl">♪ Musik</span>
     </button>
     <audio id="bg-music" loop preload="none">
-      <!-- Add: <source src="alpine-chill.mp3" type="audio/mpeg"> -->
+      <source src="music.mp3" type="audio/mpeg">
     </audio>
     <!-- Hero content -->
     <div class="hero-content" style="z-index:5;">
-      <div class="h-eye">Grächen · Wallis · Schweiz · 1617 m ü.M.</div>
+      <div class="h-eye" data-t="hero-eye">Grächen · Wallis · Schweiz · 1617 m ü.M.</div>
       <h1 class="h-title">Lodge <em style="color:var(--gl);font-style:italic;">Monte Rosa</em></h1>
       <p class="h-tag" data-t="hero-tag">Your Luxury Alpine Escape</p>
       <div class="h-stats">
@@ -729,7 +743,7 @@ footer{
       <div class="hud-row"><span class="hud-l">GPS</span><span class="hud-v" style="font-size:.56rem;">46.19°N 7.83°E</span></div>
     </div>
     <div class="hero-content" style="z-index:5;">
-      <div class="h-eye">Grächen · Wallis · Schweiz · 1617 m ü.M.</div>
+      <div class="h-eye" data-t="hero-eye">Grächen · Wallis · Schweiz · 1617 m ü.M.</div>
       <h1 class="h-title">Lodge <em style="color:var(--gl);font-style:italic;">Monte Rosa</em></h1>
       <p class="h-tag" data-t="hero-tag">Your Luxury Alpine Escape</p>
       <div class="h-stats">
@@ -755,9 +769,9 @@ footer{
 </section>
 
 <!-- ══ GALERIE ════════════════════════════════════ -->
-<section id="galerie" style="background:var(--forest);padding:0;scroll-margin-top:60px">
+<section id="galerie" style="background:var(--forest);padding:0">
   <div class="gal-head reveal">
-    <span class="sec-label">Galerie</span>
+    <span class="sec-label" data-t="gal-label">Galerie</span>
     <h2 class="sec-title">Die Lodge <em>von innen & aussen</em></h2>
     <div class="divider center"></div>
   </div>
@@ -842,7 +856,7 @@ footer{
 <section id="umgebung">
   <div class="container">
     <div class="reveal" style="text-align:center;margin-bottom:2.5rem">
-      <span class="sec-label">Grächen · Wallis · Umgebung</span>
+      <span class="sec-label" data-t="umb-label">Grächen · Wallis · Umgebung</span>
       <h2 class="sec-title">7 Erlebnisse <em>rundum</em></h2>
       <div class="divider center"></div>
       <p style="font-size:.8rem;color:rgba(255,255,255,.4);max-width:500px;margin:0 auto;line-height:1.8">Grächen auf 1617 m bietet in jeder Saison unvergessliche Erlebnisse — direkt vor der Lodge.</p>
@@ -911,7 +925,7 @@ footer{
 <section id="buchen">
   <div class="container">
     <div class="reveal" style="text-align:center;margin-bottom:3rem">
-      <span class="sec-label">Direktbuchung · Ohne Plattformgebühr</span>
+      <span class="sec-label" data-t="book-label">Direktbuchung · Ohne Plattformgebühr</span>
       <h2 class="sec-title">Verfügbarkeit <em>& Preise</em></h2>
       <div class="divider center"></div>
     </div>
@@ -951,8 +965,33 @@ footer{
       </div>
       <div>
         <div class="cbox reveal">
-          <h3>Direktbuchung</h3>
-          <div class="cbox-sub">Ohne Plattformgebühren — persönlich und unkompliziert. Antwort innerhalb weniger Stunden.</div>
+          <h3 data-t="book-title">Direktbuchung</h3>
+          <div class="cbox-sub" data-t="book-sub">Ohne Plattformgebühren — persönlich und unkompliziert. Antwort innerhalb weniger Stunden.</div>
+
+          <!-- Platform booking -->
+          <div style="font-size:.56rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.28);margin-bottom:.5rem">Sofort buchen via Plattform</div>
+          <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem">
+            <a href="https://www.airbnb.ch/rooms/1342088874495540775" target="_blank" style="flex:1;min-width:120px;display:flex;align-items:center;justify-content:center;gap:.4rem;padding:.6rem .8rem;background:rgba(255,90,80,.12);border:.5px solid rgba(255,90,80,.3);color:rgba(255,130,120,.9);font-size:.62rem;font-weight:700;letter-spacing:.08em;text-decoration:none;transition:all .2s" onmouseover="this.style.background='rgba(255,90,80,.22)'" onmouseout="this.style.background='rgba(255,90,80,.12)'">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/></svg>
+              Airbnb buchen
+            </a>
+            <a href="https://www.vrbo.com/5742381ha" target="_blank" style="flex:1;min-width:120px;display:flex;align-items:center;justify-content:center;gap:.4rem;padding:.6rem .8rem;background:rgba(0,120,200,.1);border:.5px solid rgba(0,120,200,.28);color:rgba(80,170,255,.9);font-size:.62rem;font-weight:700;letter-spacing:.08em;text-decoration:none;transition:all .2s" onmouseover="this.style.background='rgba(0,120,200,.2)'" onmouseout="this.style.background='rgba(0,120,200,.1)'">
+              VRBO buchen
+            </a>
+            <a href="https://www.booking.com/hotel/ch/luxury-home-panoramic-view-fireplace-sauna-garden.de.html" target="_blank" style="flex:1;min-width:120px;display:flex;align-items:center;justify-content:center;gap:.4rem;padding:.6rem .8rem;background:rgba(0,100,220,.1);border:.5px solid rgba(0,100,220,.28);color:rgba(100,160,255,.9);font-size:.62rem;font-weight:700;letter-spacing:.08em;text-decoration:none;transition:all .2s" onmouseover="this.style.background='rgba(0,100,220,.2)'" onmouseout="this.style.background='rgba(0,100,220,.1)'">
+              Booking.com
+            </a>
+            <a href="https://www.bergfex.ch/graechen/chalet-lodge-monte-rosa/" target="_blank" style="flex:1;min-width:120px;display:flex;align-items:center;justify-content:center;gap:.4rem;padding:.6rem .8rem;background:rgba(74,180,74,.1);border:.5px solid rgba(74,180,74,.28);color:rgba(100,210,100,.9);font-size:.62rem;font-weight:700;letter-spacing:.08em;text-decoration:none;transition:all .2s" onmouseover="this.style.background='rgba(74,180,74,.2)'" onmouseout="this.style.background='rgba(74,180,74,.1)'">
+              Bergfex buchen
+            </a>
+          </div>
+
+          <!-- Divider -->
+          <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.8rem">
+            <div style="flex:1;height:.5px;background:rgba(255,255,255,.1)"></div>
+            <span style="font-size:.58rem;color:rgba(255,255,255,.28);letter-spacing:.1em">ODER DIREKT</span>
+            <div style="flex:1;height:.5px;background:rgba(255,255,255,.1)"></div>
+          </div>
           <a href="https://wa.me/41793230674?text=Hallo%20Caroline%2C%20ich%20m%C3%B6chte%20die%20Lodge%20Monte%20Rosa%20anfragen." target="_blank" class="copt copt-wa">
             <span style="font-size:1.2rem">💬</span>
             <div><div class="co-lbl">WhatsApp · Schnellste Option</div><div class="co-val">Caroline +41 79 323 06 74</div></div>
@@ -962,11 +1001,11 @@ footer{
             <span style="font-size:1.2rem">✉️</span>
             <div><div class="co-lbl">E-Mail</div><div class="co-val">hoefenmatt@outlook.com</div></div>
           </a>
-          <a href="https://www.airbnb.ch/p/lodgemonterosa" target="_blank" class="copt">
+          <a href="https://www.airbnb.ch/rooms/1342088874495540775" target="_blank" class="copt">
             <span style="font-size:1.2rem">🏡</span>
-            <div><div class="co-lbl">Airbnb <span style="font-size:.48rem;background:rgba(255,100,100,.15);color:rgba(255,120,120,.8);padding:.1rem .3rem;margin-left:.3rem">+14% Gebühr</span></div><div class="co-val" style="font-size:.82rem">airbnb.ch/p/lodgemonterosa</div></div>
+            <div><div class="co-lbl">Airbnb <span style="font-size:.48rem;background:rgba(255,100,100,.15);color:rgba(255,120,120,.8);padding:.1rem .3rem;margin-left:.3rem">+14% Gebühr</span></div><div class="co-val" style="font-size:.82rem">airbnb.ch/rooms/1342088874495540775</div></div>
           </a>
-          <a href="https://www.bergfex.com/graechen/chalet-lodge-monte-rosa/" target="_blank" class="copt">
+          <a href="https://www.bergfex.ch/graechen/chalet-lodge-monte-rosa/" target="_blank" class="copt">
             <span style="font-size:1.2rem">⛷️</span>
             <div><div class="co-lbl">Bergfex</div><div class="co-val" style="font-size:.82rem">bergfex.com · Lodge Monte Rosa</div></div>
           </a>
@@ -990,6 +1029,28 @@ footer{
               <div class="rule-row"><span>✗</span><span>Keine Veranstaltungen · Max. 8 Gäste</span></div>
             </div>
           </div>
+          <!-- Payment methods -->
+          <div style="margin-top:.8rem;padding:.9rem 1rem;background:rgba(255,255,255,.02);border:.5px solid rgba(255,255,255,.07)">
+            <div style="font-size:.54rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.28);margin-bottom:.6rem">Zahlungsarten</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:.4rem">
+              <div style="display:flex;align-items:center;gap:.4rem;font-size:.7rem;color:rgba(255,255,255,.5)">
+                <span style="font-size:1rem">🏦</span>
+                <div>
+                  <div style="font-size:.62rem;font-weight:700;color:rgba(255,255,255,.55)">Banküberweisung</div>
+                  <div style="font-size:.58rem;color:rgba(255,255,255,.3)">Raiffeisen Unterägeri</div>
+                </div>
+              </div>
+              <div style="display:flex;align-items:center;gap:.4rem;font-size:.7rem;color:rgba(255,255,255,.5)">
+                <span style="font-size:1rem">📱</span>
+                <div>
+                  <div style="font-size:.62rem;font-weight:700;color:rgba(255,255,255,.55)">TWINT</div>
+                  <div style="font-size:.58rem;color:rgba(255,255,255,.3)">+41 79 323 06 74</div>
+                </div>
+              </div>
+            </div>
+            <div style="margin-top:.5rem;font-size:.58rem;color:rgba(255,255,255,.25);line-height:1.5">Anzahlung 30% bei Buchungsbestätigung · Restzahlung 30 Tage vor Anreise</div>
+          </div>
+
           <div class="storno">
             <div style="font-size:.54rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.25);margin-bottom:.4rem">Stornierung</div>
             <strong class="g">100% Rückerstattung</strong> bis 30 Tage vor Check-in.<br>
@@ -1064,33 +1125,232 @@ footer{
 <section id="grundriss" style="background:var(--dark);padding:4rem 0">
   <div class="container">
     <div class="reveal" style="text-align:center;margin-bottom:2rem">
-      <span class="sec-label">Architektenplan · architektur-truffer.ch · 2019</span>
-      <h2 class="sec-title">Grundriss <em>Lodge Monte Rosa</em></h2>
+      <span class="sec-label">Grundriss · Lodge Monte Rosa · 185 m²</span>
+      <h2 class="sec-title">Zimmeraufteilung <em>auf zwei Etagen</em></h2>
       <div class="divider center"></div>
-      <p style="font-size:.76rem;color:rgba(255,255,255,.33);max-width:480px;margin:0 auto 2rem;line-height:1.7">185 m² Wohnfläche · Garten 200 m² · Terrasse 50 m² · Balkon 30 m²</p>
     </div>
-    <div class="gr-summary reveal">
-      <div class="gr-card"><span class="gr-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.2"><path d="M20 9V6a2 2 0 00-2-2H6a2 2 0 00-2 2v3"/><path d="M2 11v5a2 2 0 002 2h16a2 2 0 002-2v-5a1 1 0 00-1-1H3a1 1 0 00-1 1z"/><path d="M4 18v2m16-2v2"/></svg></span><div class="gr-name">Wohnen + Essen</div><div class="gr-tag">EG · Panoramafenster</div><div class="gr-note">Monolith-Kamin · Matterhorn-Blick</div></div>
-      <div class="gr-card"><span class="gr-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg></span><div class="gr-name">Sauna + Wellness</div><div class="gr-tag">EG · 40 m² · Premium</div><div class="gr-note">Finn. Sauna · Badewanne · XXL-Dusche</div></div>
-      <div class="gr-card"><span class="gr-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.2"><path d="M2 4v16"/><path d="M2 8h18a2 2 0 012 2v10"/><path d="M2 17h20"/><path d="M6 8v9"/></svg></span><div class="gr-name">3 Doppelzimmer</div><div class="gr-tag">EG + OG</div><div class="gr-note">Je Boxspring · Bergblick</div></div>
-      <div class="gr-card"><span class="gr-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></span><div class="gr-name">Kinderzimmer</div><div class="gr-tag">EG · 3 Schlafplätze</div><div class="gr-note">Stockbett 2×90 + Hochbett 120</div></div>
-      <div class="gr-card"><span class="gr-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="12" y1="3" x2="12" y2="21"/></svg></span><div class="gr-name">Glasbalkon OG</div><div class="gr-tag">OG · 30 m²</div><div class="gr-note">Richtung Zermatt · 4000er</div></div>
+
+    <!-- Floor tabs -->
+    <div style="display:flex;justify-content:center;gap:0;margin-bottom:2rem;" class="reveal">
+      <button id="gr-btn-eg" onclick="showFloor('eg')" style="padding:.65rem 2.5rem;font-size:.65rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;background:rgba(201,168,76,.15);border:.5px solid var(--gold);color:var(--gold);cursor:pointer;transition:all .2s;">EG — Erdgeschoss</button>
+      <button id="gr-btn-og" onclick="showFloor('og')" style="padding:.65rem 2.5rem;font-size:.65rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;background:rgba(255,255,255,.02);border:.5px solid rgba(255,255,255,.12);color:rgba(255,255,255,.35);cursor:pointer;transition:all .2s;">OG — Obergeschoss</button>
     </div>
-    <div style="text-align:center" class="reveal">
-      <p style="font-size:.72rem;color:rgba(255,255,255,.3);margin-bottom:1.5rem;line-height:1.7">EG: Entrée · Flur/Treppe · WC · Sauna/Wellness · Réduit · Wohnen (Kamin) · Essen · Küche · Doppelzimmer 1 · Kinderzimmer · Balkon EG · Terrasse Süd<br>OG: Master Suite (Balkon) · Bad En-Suite · Gang · Doppelzimmer 2+3 · Bad 2 · Gäste WC · Glasbalkon OG</p>
-      <p style="font-size:.64rem;color:rgba(255,255,255,.18);font-style:italic">Grundriss schematisch · architektur-truffer.ch 2019 · Fussbodenheizung + Parkett</p>
+
+    <!-- EG Floor Plan -->
+    <div id="gr-eg" class="reveal" style="max-width:820px;margin:0 auto;">
+      <svg viewBox="0 0 820 520" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;background:rgba(255,255,255,.02);border:.5px solid rgba(201,168,76,.15);">
+        <!-- Title -->
+        <text x="410" y="22" text-anchor="middle" font-family="Georgia,serif" font-size="13" fill="rgba(201,168,76,.7)" font-style="italic">Erdgeschoss (EG)</text>
+
+        <!-- Outer walls -->
+        <rect x="30" y="35" width="760" height="470" fill="none" stroke="rgba(201,168,76,.5)" stroke-width="3"/>
+
+        <!-- NORD ROW: Eingang | Flur/Treppe | WC | Réduit -->
+        <!-- Eingang -->
+        <rect x="30" y="35" width="145" height="110" fill="rgba(255,255,255,.03)" stroke="rgba(255,255,255,.15)" stroke-width="1.2"/>
+        <text x="102" y="83" text-anchor="middle" font-family="Georgia,serif" font-size="12" fill="rgba(255,255,255,.55)" font-style="italic">Eingang</text>
+        <text x="102" y="98" text-anchor="middle" font-family="Lato,sans-serif" font-size="9" fill="rgba(255,255,255,.28)">Entrée</text>
+        <!-- door symbol -->
+        <line x1="30" y1="95" x2="58" y2="95" stroke="rgba(255,255,255,.0)" stroke-width="0"/>
+        <rect x="30" y="88" width="28" height="4" fill="rgba(201,168,76,.4)"/>
+
+        <!-- Flur / Treppe -->
+        <rect x="175" y="35" width="150" height="110" fill="rgba(201,168,76,.04)" stroke="rgba(255,255,255,.12)" stroke-width="1.2"/>
+        <text x="250" y="80" text-anchor="middle" font-family="Georgia,serif" font-size="12" fill="rgba(255,255,255,.55)" font-style="italic">Flur</text>
+        <text x="250" y="96" text-anchor="middle" font-family="Lato,sans-serif" font-size="9" fill="rgba(201,168,76,.7)" font-weight="700" letter-spacing="1">↑ TREPPE OG</text>
+        <!-- Staircase symbol -->
+        <rect x="185" y="105" width="18" height="8" fill="rgba(201,168,76,.15)" stroke="rgba(201,168,76,.3)" stroke-width=".8"/>
+        <rect x="203" y="105" width="18" height="8" fill="rgba(201,168,76,.12)" stroke="rgba(201,168,76,.3)" stroke-width=".8"/>
+        <rect x="221" y="105" width="18" height="8" fill="rgba(201,168,76,.09)" stroke="rgba(201,168,76,.3)" stroke-width=".8"/>
+        <rect x="239" y="105" width="18" height="8" fill="rgba(201,168,76,.06)" stroke="rgba(201,168,76,.3)" stroke-width=".8"/>
+
+        <!-- WC Gäste -->
+        <rect x="325" y="35" width="90" height="110" fill="rgba(100,140,200,.07)" stroke="rgba(100,140,200,.3)" stroke-width="1.2"/>
+        <text x="370" y="83" text-anchor="middle" font-family="Georgia,serif" font-size="11" fill="rgba(100,180,255,.65)" font-style="italic">WC</text>
+        <text x="370" y="98" text-anchor="middle" font-family="Lato,sans-serif" font-size="8.5" fill="rgba(100,180,255,.4)">Gäste</text>
+        <!-- toilet symbol -->
+        <ellipse cx="370" cy="118" rx="10" ry="7" fill="none" stroke="rgba(100,180,255,.3)" stroke-width=".8"/>
+
+        <!-- Réduit/Technik -->
+        <rect x="415" y="35" width="100" height="110" fill="rgba(255,255,255,.02)" stroke="rgba(255,255,255,.1)" stroke-width="1.2"/>
+        <text x="465" y="83" text-anchor="middle" font-family="Georgia,serif" font-size="11" fill="rgba(255,255,255,.38)" font-style="italic">Réduit</text>
+        <text x="465" y="98" text-anchor="middle" font-family="Lato,sans-serif" font-size="8.5" fill="rgba(255,255,255,.22)">Technik</text>
+
+        <!-- SAUNA / WELLNESS -->
+        <rect x="515" y="35" width="275" height="145" fill="rgba(201,100,30,.1)" stroke="rgba(201,100,30,.55)" stroke-width="2"/>
+        <text x="652" y="88" text-anchor="middle" font-family="Georgia,serif" font-size="16" fill="rgba(230,150,70,.9)" font-style="italic">Sauna</text>
+        <text x="652" y="108" text-anchor="middle" font-family="Georgia,serif" font-size="12" fill="rgba(230,150,70,.7)" font-style="italic">+ Wellness</text>
+        <text x="652" y="126" text-anchor="middle" font-family="Lato,sans-serif" font-size="8.5" fill="rgba(201,100,30,.7)" font-weight="700" letter-spacing="1.5">40 m² · PRIVAT</text>
+        <!-- Sauna bench symbol -->
+        <rect x="528" y="143" width="55" height="28" rx="3" fill="rgba(201,100,30,.18)" stroke="rgba(201,100,30,.4)" stroke-width=".8"/>
+        <!-- Bathtub symbol -->
+        <rect x="630" y="135" width="60" height="32" rx="8" fill="rgba(74,140,200,.12)" stroke="rgba(74,140,200,.35)" stroke-width=".8"/>
+        <text x="660" y="155" text-anchor="middle" font-size="10" fill="rgba(74,140,200,.5)">♨</text>
+
+        <!-- MIDDLE ROW: Wohnen | Essen -->
+        <!-- Wohnzimmer -->
+        <rect x="30" y="145" width="310" height="160" fill="rgba(74,124,78,.07)" stroke="rgba(74,124,78,.4)" stroke-width="1.8"/>
+        <text x="185" y="208" text-anchor="middle" font-family="Georgia,serif" font-size="17" fill="rgba(255,255,255,.75)" font-style="italic">Wohnzimmer</text>
+        <text x="185" y="228" text-anchor="middle" font-family="Lato,sans-serif" font-size="9" fill="rgba(201,168,76,.65)" font-weight="700" letter-spacing="1.5">KAMIN · PANORAMA</text>
+        <!-- Sofa symbol -->
+        <rect x="55" y="258" width="110" height="34" rx="4" fill="rgba(74,124,78,.15)" stroke="rgba(74,124,78,.35)" stroke-width=".8"/>
+        <!-- Fireplace -->
+        <rect x="220" y="256" width="38" height="38" rx="2" fill="rgba(201,100,30,.18)" stroke="rgba(201,100,30,.45)" stroke-width=".8"/>
+        <text x="239" y="279" text-anchor="middle" font-size="14" fill="rgba(201,100,30,.6)">🔥</text>
+
+        <!-- Esszimmer -->
+        <rect x="340" y="145" width="175" height="160" fill="rgba(201,168,76,.05)" stroke="rgba(201,168,76,.25)" stroke-width="1.5"/>
+        <text x="427" y="215" text-anchor="middle" font-family="Georgia,serif" font-size="14" fill="rgba(255,255,255,.65)" font-style="italic">Essen</text>
+        <!-- Table symbol -->
+        <rect x="370" y="228" width="115" height="60" rx="4" fill="rgba(201,168,76,.08)" stroke="rgba(201,168,76,.25)" stroke-width=".8"/>
+
+        <!-- Küche -->
+        <rect x="515" y="180" width="275" height="125" fill="rgba(201,168,76,.06)" stroke="rgba(201,168,76,.28)" stroke-width="1.5"/>
+        <text x="652" y="238" text-anchor="middle" font-family="Georgia,serif" font-size="15" fill="rgba(255,255,255,.7)" font-style="italic">Küche</text>
+        <text x="652" y="255" text-anchor="middle" font-family="Lato,sans-serif" font-size="9" fill="rgba(201,168,76,.55)" font-weight="700" letter-spacing="1">MIELE · INSEL</text>
+        <!-- Counter -->
+        <rect x="528" y="275" width="248" height="22" rx="2" fill="rgba(201,168,76,.1)" stroke="rgba(201,168,76,.25)" stroke-width=".8"/>
+
+        <!-- SOUTH ROW: DZ1 | Kinderzimmer | Bad EG | Balkon/Terrasse -->
+        <!-- Doppelzimmer 1 -->
+        <rect x="30" y="305" width="210" height="140" fill="rgba(61,107,224,.08)" stroke="rgba(61,107,224,.35)" stroke-width="1.8"/>
+        <text x="135" y="360" text-anchor="middle" font-family="Georgia,serif" font-size="13" fill="rgba(255,255,255,.7)" font-style="italic">Doppelzimmer 1</text>
+        <text x="135" y="377" text-anchor="middle" font-family="Lato,sans-serif" font-size="9" fill="rgba(100,140,255,.55)" font-weight="700" letter-spacing="1">BOXSPRING</text>
+        <!-- Bed symbol -->
+        <rect x="55" y="390" width="155" height="45" rx="3" fill="rgba(61,107,224,.12)" stroke="rgba(61,107,224,.3)" stroke-width=".8"/>
+        <rect x="55" y="390" width="28" height="20" rx="2" fill="rgba(61,107,224,.25)" stroke="rgba(61,107,224,.4)" stroke-width=".5"/>
+        <rect x="182" y="390" width="28" height="20" rx="2" fill="rgba(61,107,224,.25)" stroke="rgba(61,107,224,.4)" stroke-width=".5"/>
+
+        <!-- Kinderzimmer -->
+        <rect x="240" y="305" width="185" height="140" fill="rgba(74,180,74,.08)" stroke="rgba(74,180,74,.38)" stroke-width="1.8"/>
+        <text x="332" y="355" text-anchor="middle" font-family="Georgia,serif" font-size="13" fill="rgba(255,255,255,.7)" font-style="italic">Kinderzimmer</text>
+        <text x="332" y="372" text-anchor="middle" font-family="Lato,sans-serif" font-size="9" fill="rgba(74,200,74,.6)" font-weight="700" letter-spacing="1">3 SCHLAFPLÄTZE</text>
+        <!-- Bunk bed symbol -->
+        <rect x="258" y="388" width="50" height="40" rx="2" fill="rgba(74,180,74,.1)" stroke="rgba(74,180,74,.3)" stroke-width=".8"/>
+        <line x1="258" y1="408" x2="308" y2="408" stroke="rgba(74,180,74,.3)" stroke-width=".8"/>
+        <rect x="315" y="388" width="90" height="40" rx="2" fill="rgba(74,180,74,.08)" stroke="rgba(74,180,74,.28)" stroke-width=".8"/>
+
+        <!-- Bad EG -->
+        <rect x="425" y="305" width="90" height="140" fill="rgba(100,140,200,.07)" stroke="rgba(100,140,200,.32)" stroke-width="1.5"/>
+        <text x="470" y="355" text-anchor="middle" font-family="Georgia,serif" font-size="11" fill="rgba(100,180,255,.65)" font-style="italic">Bad EG</text>
+        <!-- Shower -->
+        <rect x="436" y="368" width="68" height="65" rx="3" fill="rgba(100,140,200,.08)" stroke="rgba(100,140,200,.25)" stroke-width=".8"/>
+        <text x="470" y="404" text-anchor="middle" font-size="16" fill="rgba(100,180,255,.4)">🚿</text>
+
+        <!-- Terrasse Süd -->
+        <rect x="515" y="305" width="275" height="140" fill="rgba(25,40,10,.5)" stroke="rgba(201,168,76,.35)" stroke-width="1.5"/>
+        <text x="652" y="358" text-anchor="middle" font-family="Lato,sans-serif" font-size="10" fill="rgba(201,168,76,.65)" font-weight="700" letter-spacing="2">TERRASSE SÜD</text>
+        <text x="652" y="377" text-anchor="middle" font-family="Georgia,serif" font-size="11" fill="rgba(201,168,76,.45)" font-style="italic">50 m² · Alpenpanorama</text>
+        <text x="652" y="396" text-anchor="middle" font-family="Lato,sans-serif" font-size="9" fill="rgba(201,168,76,.35)" letter-spacing="1">↑ RICHTUNG MATTERHORN</text>
+
+        <!-- North arrow -->
+        <text x="790" y="52" text-anchor="middle" font-family="Lato,sans-serif" font-size="9" fill="rgba(201,168,76,.5)" font-weight="700">N ↑</text>
+
+        <!-- Compass rose simple -->
+        <text x="790" y="490" text-anchor="middle" font-family="Lato,sans-serif" font-size="8" fill="rgba(255,255,255,.2)">S ↓</text>
+      </svg>
+
+      <!-- Legend EG -->
+      <div style="display:flex;flex-wrap:wrap;gap:.5rem 1.5rem;margin-top:1rem;padding:.8rem 0;border-top:.5px solid rgba(255,255,255,.06);">
+        <div style="display:flex;align-items:center;gap:.4rem;font-size:.65rem;color:rgba(255,255,255,.4)"><div style="width:12px;height:12px;background:rgba(74,124,78,.25);border:.5px solid rgba(74,124,78,.5)"></div>Wohnen/Essen</div>
+        <div style="display:flex;align-items:center;gap:.4rem;font-size:.65rem;color:rgba(255,255,255,.4)"><div style="width:12px;height:12px;background:rgba(201,100,30,.25);border:.5px solid rgba(201,100,30,.5)"></div>Sauna/Wellness</div>
+        <div style="display:flex;align-items:center;gap:.4rem;font-size:.65rem;color:rgba(255,255,255,.4)"><div style="width:12px;height:12px;background:rgba(61,107,224,.2);border:.5px solid rgba(61,107,224,.5)"></div>Schlafzimmer</div>
+        <div style="display:flex;align-items:center;gap:.4rem;font-size:.65rem;color:rgba(255,255,255,.4)"><div style="width:12px;height:12px;background:rgba(74,180,74,.2);border:.5px solid rgba(74,180,74,.5)"></div>Kinderzimmer</div>
+        <div style="display:flex;align-items:center;gap:.4rem;font-size:.65rem;color:rgba(255,255,255,.4)"><div style="width:12px;height:12px;background:rgba(100,140,200,.2);border:.5px solid rgba(100,140,200,.5)"></div>Bad/WC</div>
+        <div style="display:flex;align-items:center;gap:.4rem;font-size:.65rem;color:rgba(255,255,255,.4)"><div style="width:12px;height:12px;background:rgba(25,40,10,.5);border:.5px solid rgba(201,168,76,.4)"></div>Terrasse</div>
+      </div>
     </div>
+
+    <!-- OG Floor Plan -->
+    <div id="gr-og" style="max-width:820px;margin:0 auto;display:none;" class="reveal">
+      <svg viewBox="0 0 820 480" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;background:rgba(255,255,255,.02);border:.5px solid rgba(201,168,76,.15);">
+        <text x="410" y="22" text-anchor="middle" font-family="Georgia,serif" font-size="13" fill="rgba(201,168,76,.7)" font-style="italic">Obergeschoss (OG)</text>
+
+        <!-- Outer walls -->
+        <rect x="30" y="35" width="760" height="430" fill="none" stroke="rgba(201,168,76,.5)" stroke-width="3"/>
+
+        <!-- Flur OG / Treppe -->
+        <rect x="30" y="35" width="150" height="430" fill="rgba(201,168,76,.03)" stroke="rgba(255,255,255,.1)" stroke-width="1.2"/>
+        <text x="105" y="230" text-anchor="middle" font-family="Georgia,serif" font-size="12" fill="rgba(255,255,255,.45)" font-style="italic" transform="rotate(-90,105,230)">Flur OG</text>
+        <!-- Staircase -->
+        <rect x="40" y="40" width="130" height="18" fill="rgba(201,168,76,.12)" stroke="rgba(201,168,76,.3)" stroke-width=".8"/>
+        <rect x="40" y="58" width="130" height="18" fill="rgba(201,168,76,.09)" stroke="rgba(201,168,76,.28)" stroke-width=".8"/>
+        <rect x="40" y="76" width="130" height="18" fill="rgba(201,168,76,.06)" stroke="rgba(201,168,76,.25)" stroke-width=".8"/>
+        <rect x="40" y="94" width="130" height="18" fill="rgba(201,168,76,.04)" stroke="rgba(201,168,76,.22)" stroke-width=".8"/>
+        <text x="105" y="140" text-anchor="middle" font-family="Lato,sans-serif" font-size="8.5" fill="rgba(201,168,76,.5)" font-weight="700" letter-spacing="1">↓ TREPPE EG</text>
+
+        <!-- Master Suite (DZ 1) -->
+        <rect x="180" y="35" width="260" height="200" fill="rgba(61,107,224,.09)" stroke="rgba(61,107,224,.4)" stroke-width="1.8"/>
+        <text x="310" y="115" text-anchor="middle" font-family="Georgia,serif" font-size="15" fill="rgba(255,255,255,.75)" font-style="italic">Master Suite</text>
+        <text x="310" y="133" text-anchor="middle" font-family="Lato,sans-serif" font-size="9" fill="rgba(100,140,255,.6)" font-weight="700" letter-spacing="1.2">BALKON · BOXSPRING</text>
+        <!-- Bed -->
+        <rect x="210" y="155" width="200" height="65" rx="3" fill="rgba(61,107,224,.14)" stroke="rgba(61,107,224,.35)" stroke-width=".8"/>
+        <rect x="210" y="155" width="32" height="22" rx="2" fill="rgba(61,107,224,.28)" stroke="rgba(61,107,224,.4)" stroke-width=".5"/>
+        <rect x="378" y="155" width="32" height="22" rx="2" fill="rgba(61,107,224,.28)" stroke="rgba(61,107,224,.4)" stroke-width=".5"/>
+
+        <!-- Bad En-Suite -->
+        <rect x="180" y="235" width="160" height="230" fill="rgba(100,140,200,.08)" stroke="rgba(100,140,200,.35)" stroke-width="1.5"/>
+        <text x="260" y="328" text-anchor="middle" font-family="Georgia,serif" font-size="12" fill="rgba(100,180,255,.65)" font-style="italic">Bad</text>
+        <text x="260" y="345" text-anchor="middle" font-family="Lato,sans-serif" font-size="8.5" fill="rgba(100,180,255,.42)" font-weight="700">EN-SUITE</text>
+        <!-- Bathtub -->
+        <rect x="198" y="370" width="120" height="80" rx="8" fill="rgba(100,140,200,.12)" stroke="rgba(100,140,200,.3)" stroke-width=".8"/>
+        <text x="258" y="415" text-anchor="middle" font-size="18" fill="rgba(100,180,255,.4)">🛁</text>
+
+        <!-- DZ 2 -->
+        <rect x="440" y="35" width="190" height="205" fill="rgba(61,107,224,.07)" stroke="rgba(61,107,224,.3)" stroke-width="1.8"/>
+        <text x="535" y="120" text-anchor="middle" font-family="Georgia,serif" font-size="13" fill="rgba(255,255,255,.7)" font-style="italic">Doppelzimmer 2</text>
+        <text x="535" y="137" text-anchor="middle" font-family="Lato,sans-serif" font-size="9" fill="rgba(100,140,255,.5)" font-weight="700" letter-spacing="1">BOXSPRING</text>
+        <!-- Bed -->
+        <rect x="460" y="160" width="150" height="60" rx="3" fill="rgba(61,107,224,.12)" stroke="rgba(61,107,224,.28)" stroke-width=".8"/>
+
+        <!-- DZ 3 -->
+        <rect x="630" y="35" width="160" height="205" fill="rgba(61,107,224,.07)" stroke="rgba(61,107,224,.28)" stroke-width="1.8"/>
+        <text x="710" y="120" text-anchor="middle" font-family="Georgia,serif" font-size="13" fill="rgba(255,255,255,.7)" font-style="italic">Doppelzimmer 3</text>
+        <text x="710" y="137" text-anchor="middle" font-family="Lato,sans-serif" font-size="9" fill="rgba(100,140,255,.5)" font-weight="700" letter-spacing="1">BOXSPRING</text>
+        <!-- Bed -->
+        <rect x="648" y="160" width="123" height="60" rx="3" fill="rgba(61,107,224,.12)" stroke="rgba(61,107,224,.28)" stroke-width=".8"/>
+
+        <!-- Bad OG -->
+        <rect x="440" y="240" width="190" height="225" fill="rgba(100,140,200,.08)" stroke="rgba(100,140,200,.3)" stroke-width="1.5"/>
+        <text x="535" y="345" text-anchor="middle" font-family="Georgia,serif" font-size="12" fill="rgba(100,180,255,.62)" font-style="italic">Bad OG</text>
+        <!-- Shower + WC -->
+        <rect x="455" y="370" width="75" height="82" rx="3" fill="rgba(100,140,200,.1)" stroke="rgba(100,140,200,.25)" stroke-width=".8"/>
+        <text x="492" y="415" text-anchor="middle" font-size="16" fill="rgba(100,180,255,.4)">🚿</text>
+        <ellipse cx="580" cy="400" rx="22" ry="16" fill="none" stroke="rgba(100,180,255,.25)" stroke-width=".8"/>
+
+        <!-- Glasbalkon OG -->
+        <rect x="340" y="35" width="100" height="430" fill="rgba(135,200,255,.06)" stroke="rgba(135,200,255,.32)" stroke-width="1.8"/>
+        <text x="390" y="255" text-anchor="middle" font-family="Lato,sans-serif" font-size="9.5" fill="rgba(135,200,255,.6)" font-weight="700" letter-spacing="1.5" transform="rotate(-90,390,255)">GLASBALKON 30 m² · ALPENPANORAMA</text>
+
+        <!-- Gäste WC -->
+        <rect x="630" y="240" width="160" height="225" fill="rgba(100,140,200,.06)" stroke="rgba(100,140,200,.25)" stroke-width="1.2"/>
+        <text x="710" y="345" text-anchor="middle" font-family="Georgia,serif" font-size="11" fill="rgba(100,180,255,.55)" font-style="italic">Gäste WC</text>
+
+        <!-- North arrow -->
+        <text x="790" y="52" text-anchor="middle" font-family="Lato,sans-serif" font-size="9" fill="rgba(201,168,76,.5)" font-weight="700">N ↑</text>
+      </svg>
+
+      <!-- Legend OG -->
+      <div style="display:flex;flex-wrap:wrap;gap:.5rem 1.5rem;margin-top:1rem;padding:.8rem 0;border-top:.5px solid rgba(255,255,255,.06);">
+        <div style="display:flex;align-items:center;gap:.4rem;font-size:.65rem;color:rgba(255,255,255,.4)"><div style="width:12px;height:12px;background:rgba(61,107,224,.2);border:.5px solid rgba(61,107,224,.5)"></div>Schlafzimmer</div>
+        <div style="display:flex;align-items:center;gap:.4rem;font-size:.65rem;color:rgba(255,255,255,.4)"><div style="width:12px;height:12px;background:rgba(100,140,200,.2);border:.5px solid rgba(100,140,200,.5)"></div>Bad/WC</div>
+        <div style="display:flex;align-items:center;gap:.4rem;font-size:.65rem;color:rgba(255,255,255,.4)"><div style="width:12px;height:12px;background:rgba(135,200,255,.12);border:.5px solid rgba(135,200,255,.4)"></div>Glasbalkon 30 m²</div>
+      </div>
+    </div>
+
+    <p style="text-align:center;color:rgba(255,255,255,.18);font-size:.62rem;font-style:italic;margin-top:1.2rem;">Schematisch · architektur-truffer.ch 2019 · Fussbodenheizung + Parkett</p>
   </div>
 </section>
+
 
 <!-- ══ FOOTER ════════════════════════════════════ -->
 <footer>
   <div class="foot-inner">
     <div class="foot-logo">Lodge <em>Monte Rosa</em> <span style="font-size:.5rem;color:rgba(255,255,255,.18);margin-left:.5rem">Heimine 616 · 3925 Grächen · VS</span></div>
     <div class="foot-links">
-      <a href="https://www.airbnb.ch/p/lodgemonterosa" target="_blank">Airbnb</a>
-      <a href="https://www.vrbo.com/de-at/supply/home?propertyId=125377349" target="_blank">VRBO</a>
-      <a href="https://www.bergfex.com/graechen/chalet-lodge-monte-rosa/" target="_blank">Bergfex</a>
+      <a href="https://www.airbnb.ch/rooms/1342088874495540775" target="_blank">Airbnb</a>
+      <a href="https://www.vrbo.com/5742381ha" target="_blank">VRBO</a>
+      <a href="https://www.bergfex.ch/graechen/chalet-lodge-monte-rosa/" target="_blank">Bergfex</a>
       <a href="https://www.graachen.ch" target="_blank">graachen.ch</a>
       <a href="#">Datenschutz</a>
       <a href="#">Impressum</a>
@@ -1416,19 +1676,27 @@ function toggleMusic() {
 }
 // Auto-start music on first user interaction
 let musicAutoTried = false;
-document.addEventListener('click', () => {
+// Try to play music on first interaction
+function tryAutoMusic(){
   if(musicAutoTried) return;
   musicAutoTried = true;
   const audio = document.getElementById('bg-music');
-  if(audio.querySelector('source')) {
-    audio.volume = 0.18;
+  const sources = audio.querySelectorAll('source');
+  if(sources.length > 0){
+    audio.volume = 0.15;
     audio.play().then(() => {
       musicOn = true;
-      document.getElementById('music-dot').style.background = '#4caf50';
-      document.getElementById('music-lbl').textContent = '⏸ Musik';
+      const dot = document.getElementById('music-dot');
+      const lbl = document.getElementById('music-lbl');
+      const btn = document.getElementById('music-btn');
+      if(dot) dot.style.background = '#4caf50';
+      if(lbl) lbl.textContent = '⏸ Musik';
+      if(btn) { btn.style.color='var(--gold)'; btn.style.borderColor='rgba(201,168,76,.5)'; }
     }).catch(() => {});
   }
-}, {once: false});
+}
+document.addEventListener('click', tryAutoMusic, {once: true});
+document.addEventListener('touchstart', tryAutoMusic, {once: true});
 
 // ══════════════════════════════════════════════════════
 //  PHOTO DRONE TOUR
@@ -1525,24 +1793,13 @@ function goTo(id){
   document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active'));
   const nl=document.getElementById('nl-'+id);
   if(nl)nl.classList.add('active');
-  // Scroll using offsetTop for reliability
+  // Direct scroll - no smooth (smooth scroll interacts with layout)
   const top=el.offsetTop-65;
-  window.scrollTo({top:top,behavior:'smooth'});
+  window.scrollTo({top: Math.max(0,top), behavior:'smooth'});
 }
 window.addEventListener('scroll',()=>{
+  // Only update nav background - NO section detection (prevents jump)
   document.getElementById('nav').classList.toggle('scrolled',window.pageYOffset>60);
-  if(_scrolling) return;
-  // Find which section occupies the middle of the viewport
-  const mid=window.pageYOffset+window.innerHeight/2;
-  const sections=['grundriss','services','buchen','umgebung','galerie','hero'];
-  let current='hero';
-  for(const id of sections){
-    const el=document.getElementById(id);
-    if(el && el.offsetTop<=mid){current=id;break;}
-  }
-  document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active'));
-  const nl=document.getElementById('nl-'+current);
-  if(nl)nl.classList.add('active');
 },{ passive:true });
 
 // ── SEASON ──────────────────────────────────────
@@ -1576,6 +1833,9 @@ const TRANSLATIONS = {
     'svc-title':'Alles was Sie brauchen',
     'storno-good':'100% Rückerstattung','storno-bad':'Keine Rückerstattung',
     'storno-note':'Reiseversicherung empfohlen.',
+    'hero-eye':'Grächen · Wallis · Schweiz · 1617 m ü.M.',
+    'gal-label':'Galerie','umb-label':'Grächen · Wallis · Umgebung',
+    'book-label':'Direktbuchung · Ohne Plattformgebühr',
   },
   en: {
     'nav-chalet':'Chalet','nav-galerie':'Gallery','nav-graeschen':'Grächen',
@@ -1595,6 +1855,9 @@ const TRANSLATIONS = {
     'svc-title':'Everything you need',
     'storno-good':'Full refund','storno-bad':'No refund',
     'storno-note':'Travel insurance recommended.',
+    'hero-eye':'Grächen · Wallis · Switzerland · 1617 m a.s.l.',
+    'gal-label':'Gallery','umb-label':'Grächen · Valais · Region',
+    'book-label':'Direct Booking · No Platform Fee',
   },
   fr: {
     'nav-chalet':'Chalet','nav-galerie':'Galerie','nav-graeschen':'Grächen',
@@ -1614,6 +1877,9 @@ const TRANSLATIONS = {
     'svc-title':'Tout ce dont vous avez besoin',
     'storno-good':'Remboursement complet','storno-bad':'Aucun remboursement',
     'storno-note':'Assurance voyage recommandée.',
+    'hero-eye':'Grächen · Valais · Suisse · 1617 m alt.',
+    'gal-label':'Galerie','umb-label':'Grächen · Valais · Région',
+    'book-label':'Réservation directe · Sans frais',
   }
 };
 
@@ -1622,10 +1888,27 @@ function setLang(l){
   const b=document.getElementById('lb-'+l);
   if(b)b.classList.add('active');
   const t=TRANSLATIONS[l]||TRANSLATIONS['de'];
+  // Update all data-t elements
   document.querySelectorAll('[data-t]').forEach(el=>{
     const key=el.getAttribute('data-t');
     if(t[key]) el.textContent=t[key];
   });
+  // Update html lang attribute
+  document.documentElement.lang=l;
+  // Update ALPA greeting
+  const msgs=document.getElementById('chat-msgs');
+  if(msgs && msgs.children.length===1){
+    const greetings={
+      de:'Grüezi! Ich bin ALPA, Ihr persönlicher Alpine Concierge der Lodge Monte Rosa 🏔️ Wie kann ich Ihnen helfen?',
+      en:'Welcome! I am ALPA, your personal Alpine Concierge at Lodge Monte Rosa 🏔️ How can I help you?',
+      fr:'Bienvenue! Je suis ALPA, votre concierge alpin à la Lodge Monte Rosa 🏔️ Comment puis-je vous aider?'
+    };
+    msgs.children[0].textContent=greetings[l]||greetings.de;
+  }
+  // Update chat placeholder
+  const inp=document.getElementById('chat-in');
+  const placeholders={de:'Stellen Sie Ihre Frage...',en:'Ask your question...',fr:'Posez votre question...'};
+  if(inp) inp.placeholder=placeholders[l]||placeholders.de;
 }
 
 // ── ACTIVITIES SEASON ───────────────────────────
@@ -1728,6 +2011,20 @@ async function sendChat(){
     msgs.innerHTML+=`<div class="msg bot">Bitte kontaktieren Sie uns direkt: +41 79 323 06 74 oder hoefenmatt@outlook.com</div>`;
   }
   msgs.scrollTop=msgs.scrollHeight;
+}
+
+function showFloor(f){
+  document.getElementById('gr-eg').style.display = f==='eg' ? 'block' : 'none';
+  document.getElementById('gr-og').style.display = f==='og' ? 'block' : 'none';
+  const btnEG = document.getElementById('gr-btn-eg');
+  const btnOG = document.getElementById('gr-btn-og');
+  if(f==='eg'){
+    btnEG.style.background='rgba(201,168,76,.15)'; btnEG.style.borderColor='var(--gold)'; btnEG.style.color='var(--gold)';
+    btnOG.style.background='rgba(255,255,255,.02)'; btnOG.style.borderColor='rgba(255,255,255,.12)'; btnOG.style.color='rgba(255,255,255,.35)';
+  } else {
+    btnOG.style.background='rgba(201,168,76,.15)'; btnOG.style.borderColor='var(--gold)'; btnOG.style.color='var(--gold)';
+    btnEG.style.background='rgba(255,255,255,.02)'; btnEG.style.borderColor='rgba(255,255,255,.12)'; btnEG.style.color='rgba(255,255,255,.35)';
+  }
 }
 
 function openVideo(){
