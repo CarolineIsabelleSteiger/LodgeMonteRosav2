@@ -637,6 +637,24 @@ footer{
       Entdecken
       <div class="l-hint-line"></div>
     </div>
+
+    <!-- Direct booking CTA on landing -->
+    <div style="margin-top:2rem;display:flex;gap:.6rem;justify-content:center;flex-wrap:wrap;pointer-events:all;opacity:0;animation:lFadeUp .8s 2s ease forwards">
+      <a href="https://wa.me/41793230674?text=Hallo%20Caroline%2C%20ich%20m%C3%B6chte%20die%20Lodge%20Monte%20Rosa%20anfragen."
+         target="_blank"
+         onclick="event.stopPropagation()"
+         style="display:inline-flex;align-items:center;gap:.5rem;background:rgba(201,168,76,.9);color:#0c1410;padding:.65rem 1.4rem;font-family:Lato,sans-serif;font-size:.62rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;text-decoration:none;transition:all .2s"
+         onmouseover="this.style.background='rgba(232,201,125,1)'"
+         onmouseout="this.style.background='rgba(201,168,76,.9)'">
+        💬 Jetzt anfragen
+      </a>
+      <button onclick="skipLanding();setTimeout(()=>goTo('buchen'),600);event.stopPropagation()"
+         style="display:inline-flex;align-items:center;gap:.5rem;background:rgba(255,255,255,.08);backdrop-filter:blur(8px);color:rgba(255,255,255,.8);padding:.65rem 1.4rem;font-family:Lato,sans-serif;font-size:.62rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;border:.5px solid rgba(255,255,255,.25);cursor:pointer;transition:all .2s"
+         onmouseover="this.style.borderColor='rgba(201,168,76,.6)';this.style.color='rgba(201,168,76,.9)'"
+         onmouseout="this.style.borderColor='rgba(255,255,255,.25)';this.style.color='rgba(255,255,255,.8)'">
+        📅 Verfügbarkeit prüfen
+      </button>
+    </div>
   </div>
 </div>
 
@@ -1391,15 +1409,18 @@ footer{
 
 <div id="alpa-panel">
   <div class="chat-hd">
-    <div><div class="chat-title">✨ ALPA — Alpine Concierge</div><div class="chat-sub">Ihr persönlicher Assistent · DE · EN · FR</div></div>
+    <div><div class="chat-title">✨ ALPA — Alpine Concierge</div><div class="chat-sub">Ihr persönlicher Assistent · DE · EN · FR · NL · 24/7</div></div>
     <button class="chat-close" onclick="toggleAlpa()">✕</button>
   </div>
   <div class="chat-sugs">
-    <button class="chat-sug" onclick="sendSug(this)">Check-in Infos</button>
+    <button class="chat-sug" onclick="sendSug(this)">Check-in / Check-out</button>
     <button class="chat-sug" onclick="sendSug(this)">Sauna Bedienung</button>
+    <button class="chat-sug" onclick="sendSug(this)">Parkplatz & Anreise</button>
+    <button class="chat-sug" onclick="sendSug(this)">Preise</button>
+    <button class="chat-sug" onclick="sendSug(this)">Verfügbarkeit</button>
     <button class="chat-sug" onclick="sendSug(this)">Restaurants Grächen</button>
-    <button class="chat-sug" onclick="sendSug(this)">Zermatt Ausflug</button>
-    <button class="chat-sug" onclick="sendSug(this)">Preis anfragen</button>
+    <button class="chat-sug" onclick="sendSug(this)">Bettwäsche</button>
+    <button class="chat-sug" onclick="sendSug(this)">Stornierung</button>
   </div>
   <div class="chat-msgs" id="chat-msgs">
     <div class="msg bot">Grüezi! Ich bin ALPA, Ihr persönlicher Alpine Concierge der Lodge Monte Rosa 🏔️ Wie kann ich Ihnen helfen? (DE · EN · FR)</div>
@@ -2157,51 +2178,339 @@ const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersec
 document.addEventListener('DOMContentLoaded',()=>{document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));});
 
 // ── ALPA CONCIERGE ──────────────────────────────
-const SYS=`Du bist ALPA, der persönliche Alpine Concierge der Lodge Monte Rosa in Grächen, Wallis, Schweiz. Antworte IMMER in der Sprache des Gastes (DE/EN/FR/NL). Sei warmherzig und kompetent.
+// ══════════════════════════════════════════════════════════════
+//  ALPA — Alpine Lodge Personal Assistant
+//  Lokale Wissensdatenbank — keine externe API nötig
+// ══════════════════════════════════════════════════════════════
 
-LODGE: Heimine 616, CH-3925 Grächen, 1617m. 185m², 5.5 Zi., max. 8 Gäste. 3 DZ Boxspring + Kinderzimmer (3 Plätze). Finn. Sauna 40m², Badewanne, XXL-Dusche. Monolith-Kamin 180° Panorama Zermatt/4000er. Glasbalkon 30m², Terrasse 50m². 500 Mbit WLAN. Miele-Küche. Raclette/Fondue vorhanden. Airbnb 5.0★.
+const ALPA_KB = {
 
-CHECK-IN: 16:00 / CHECK-OUT: 10:00. Code per E-Mail nach Zahlung. Parking: Central Garage Bärgji 547, Nr.2. E-Taxi gratis bei 7+ Nächten (sonst CHF 40 retour).
+  // ── CHECK-IN / CHECK-OUT ──────────────────────────────────
+  checkin: {
+    patterns: ['check-in','check in','anreise','ankunft','wann kann ich','ab wann','einzug','arrival','arrive','arrivée','arriver','aankomst'],
+    answer: `🕓 <b>Check-in & Check-out</b><br><br>
+✓ Check-in: <b>ab 16:00 Uhr</b><br>
+✓ Check-out: <b>bis 10:00 Uhr</b><br><br>
+Der persönliche <b>Zugangscode</b> wird Ihnen nach Zahlungseingang per E-Mail/SMS zugesendet.<br><br>
+Frühere Ankunft oder spätere Abreise? Bitte anfragen — wir helfen gerne! 😊`
+  },
 
-PREISE (direkt): Nebensaison CHF 2800/Wo, Schulter CHF 3200, Sommer/Winter CHF 4200, Sportferien Feb CHF 4500, Weihnachten CHF 6000, Silvester CHF 6500. Endreinigung CHF 350, Kaution CHF 500, Kurtaxe CHF 3.80/P/Nacht. Bettwäsche/Handtücher INKLUSIVE. Extra-Gast ab 7. CHF 70/Nacht. Haustier CHF 10/Tag.
+  // ── ANFAHRT / PARKING ────────────────────────────────────
+  anfahrt: {
+    patterns: ['anfahrt','parkplatz','parking','auto','anreise','wie komme','wo parke','garage','bärgji','anreisen','route','navigation','maps','how to get','arrive by','parking','stationnement','garer','rijden'],
+    answer: `🚗 <b>Anreise & Parking</b><br><br>
+<b>Grächen ist verkehrsfrei</b> — mit dem Auto bis zur Garage fahren:<br><br>
+📍 <b>Central Garage Bärgji 547, 3925 Grächen</b><br>
+→ Am Ende des Gebäudes rechts abbiegen<br>
+→ Garagentor von innen öffnen<br>
+→ <b>Parkplatz Nr. 2</b> (erster links)<br><br>
+<a href="https://maps.app.goo.gl/HQ2Eh2L98GoGXBTN6" target="_blank" style="color:var(--gold)">📍 Google Maps öffnen →</a><br><br>
+🚖 <b>Elektrotaxi</b> vom Parking zur Lodge:<br>
+✓ <b>Gratis bei 7+ Nächten</b> (bitte bei Buchung erwähnen)<br>
+✓ Sonst CHF 40 retour<br><br>
+🚂 <b>Mit dem Zug:</b> Visp (SBB) → PostAuto nach Grächen (ca. 30 Min.)`
+  },
 
-BUCHUNG: Caroline +41 79 323 06 74 (WhatsApp), hoefenmatt@outlook.com. Auch: Airbnb, VRBO, Bergfex. Zahlung: Raiffeisen Unterägeri oder TWINT. 30% Anzahlung, Rest 30 Tage vorher. Storno: 100% bis 30 Tage, danach keine Rückerstattung.
+  // ── ELEKTROTAXI ──────────────────────────────────────────
+  taxi: {
+    patterns: ['taxi','elektrotaxi','e-taxi','gepäck','gepäcktransport','transfer','shuttle'],
+    answer: `🚖 <b>Elektrotaxi Grächen</b><br><br>
+Grächen ist eine <b>verkehrsfreie Zone</b> — kein Auto bis zur Lodge möglich.<br><br>
+✓ <b>Gratis bei 7+ Nächten</b><br>
+✓ Sonst CHF 40 retour (An- und Abreise)<br><br>
+Bitte beim Buchen erwähnen, dann organisieren wir alles für Sie! 😊<br><br>
+<a href="https://graechen.ch/de/Info-Service/Anreise-Mobilitaet" target="_blank" style="color:var(--gold)">Mehr zur Anreise →</a>`
+  },
 
-SAUNA: 2h/Tag inkl. Schwarzer Knopf = Hauptschalter (immer zuerst!). Bedienfeld: links unten = Sauna, Mitte = Licht.
+  // ── SAUNA ────────────────────────────────────────────────
+  sauna: {
+    patterns: ['sauna','wellness','spa','dampf','aufguss','schwitzbad','sauna'],
+    answer: `🧖 <b>Sauna & Wellness</b><br><br>
+✓ <b>2 Stunden täglich inklusive</b> im Mietpreis<br>
+✓ Finnische Holzsauna (40 m²)<br>
+✓ Freistehende Badewanne<br>
+✓ XXL-Regendusche<br><br>
+<b>Bedienung:</b><br>
+1. Schwarzer Knopf neben der Türe = <b>Hauptschalter</b> (immer zuerst!)<br>
+2. Bedienfeld aussen: Links unten = Sauna an · Mitte = Licht<br>
+3. Musik: iPad an der Wand (Spotify) → Knopf am Anhänger drücken<br><br>
+⚠️ Bitte nach dem Saunieren gut lüften!`
+  },
 
-UMGEBUNG: Zermatt 45 Min., Saas-Fee 35 Min., Leukerbad 50 Min. Skigebiet direkt (220km Pisten). Europa-Höhenweg Nr.5 ab Haustür. Restaurants 5x fussläufig. Coop/Volg/Denner Lieferung ab CHF 100.
+  // ── KAMIN ────────────────────────────────────────────────
+  kamin: {
+    patterns: ['kamin','cheminée','feuer','holz','feuerstelle','fireplace','cheminee','haard'],
+    answer: `🔥 <b>Kamin & Cheminée</b><br><br>
+✓ Monolith-Keramik-Kamin mit 180° Panorama-Blick<br>
+✓ Feuerholz: <b>links auf der Terrasse</b> (Holzlager)<br>
+✓ Anzündehilfen: Korb links neben dem Kamin<br><br>
+<b>Vor der Abreise:</b> Kamin reinigen und Asche entsorgen 🙏`
+  },
 
-KAMIN: Holz links Terrasse. TV: Schwarz=Subwoofer, Weiss=TV. Abfall: orange Säcke. Bei Abreise: Bettwäsche abziehen + neben Waschmaschine legen.`;
+  // ── BETTWÄSCHE ───────────────────────────────────────────
+  bettwaesche: {
+    patterns: ['bettwäsche','handtücher','wäsche','linen','towels','bettwaesche','linge','handdoek','beddengoed'],
+    answer: `🛏️ <b>Bettwäsche & Handtücher</b><br><br>
+✓ <b>Inklusive</b> — keine Zusatzkosten!<br>
+✓ Frische Bettwäsche für alle Zimmer<br>
+✓ Handtücher für alle Gäste<br><br>
+<b>Bei Abreise:</b> Bettwäsche abziehen und neben die Waschmaschine im Réduit legen. 🙏`
+  },
+
+  // ── KINDERZIMMER / BABY ──────────────────────────────────
+  kinder: {
+    patterns: ['kinderbett','babybett','kinderzimmer','baby','kleinkind','kinder','cot','crib','chambre enfant','kinderbed','ledikant'],
+    answer: `👶 <b>Kinderzimmer & Baby</b><br><br>
+✓ <b>Kinderzimmer</b> vorhanden mit:<br>
+→ Stockbett 2× 90×200 cm<br>
+→ Hochbett 120×200 cm<br>
+→ 3 Schlafplätze total<br><br>
+❌ <b>Kinderbett / Babybett</b> ist leider <b>nicht vorhanden</b><br>
+→ Bitte mitbringen oder lokal mieten<br><br>
+Fragen? <a href="https://wa.me/41793230674" target="_blank" style="color:var(--gold)">WhatsApp Caroline →</a>`
+  },
+
+  // ── STORNIERUNG ──────────────────────────────────────────
+  storno: {
+    patterns: ['storno','stornierung','annullierung','rückerstattung','cancellation','cancel','annulation','annuler','annulering','terugbetaling'],
+    answer: `📋 <b>Stornierungsbedingungen</b><br><br>
+✓ <b>100% Rückerstattung</b> bis 30 Tage vor Check-in<br>
+❌ <b>Keine Rückerstattung</b> bei Stornierung unter 30 Tagen<br>
+❌ Keine Rückerstattung bei vorzeitiger Abreise<br><br>
+💡 <b>Tipp:</b> Eine Reiseversicherung ist empfehlenswert!<br><br>
+<i>Bei höherer Gewalt suchen wir gemeinsam eine Lösung.</i>`
+  },
+
+  // ── PREISE ───────────────────────────────────────────────
+  preis: {
+    patterns: ['preis','kosten','was kostet','wie viel','preise','wochenpreis','price','cost','how much','prix','combien','kosten','prijs'],
+    answer: `💰 <b>Preise (Direktbuchung)</b><br><br>
+<table style="font-size:.8rem;width:100%;border-collapse:collapse">
+<tr><td style="padding:3px 6px;color:rgba(255,255,255,.6)">Nebensaison (Apr–Jun, Sep–Okt)</td><td style="color:var(--gl);text-align:right">ab CHF 2'800/Wo</td></tr>
+<tr><td style="padding:3px 6px;color:rgba(255,255,255,.6)">Schulter (Mär/Nov)</td><td style="color:var(--gl);text-align:right">ab CHF 3'200/Wo</td></tr>
+<tr><td style="padding:3px 6px;color:rgba(255,255,255,.6)">Sommer / Winter</td><td style="color:var(--gl);text-align:right">ab CHF 4'200/Wo</td></tr>
+<tr><td style="padding:3px 6px;color:rgba(255,255,255,.6)">Sportferien Feb</td><td style="color:var(--gl);text-align:right">ab CHF 4'500/Wo</td></tr>
+<tr><td style="padding:3px 6px;color:rgba(255,255,255,.6)">Weihnachten</td><td style="color:var(--gl);text-align:right">ab CHF 6'000/Wo</td></tr>
+<tr><td style="padding:3px 6px;color:rgba(255,255,255,.6)">Silvester</td><td style="color:var(--gl);text-align:right">ab CHF 6'500/Wo</td></tr>
+</table><br>
+➕ Endreinigung CHF 350 · Kaution CHF 500 · Kurtaxe CHF 3.80/P/Nacht<br>
+✓ Bettwäsche & Handtücher inklusive<br><br>
+<b>Genauen Preis berechnen:</b> <a href="#" onclick="goTo('buchen');toggleAlpa();return false" style="color:var(--gold)">Zum Preisrechner →</a>`
+  },
+
+  // ── VERFÜGBARKEIT ────────────────────────────────────────
+  verfuegbarkeit: {
+    patterns: ['verfügbar','frei','belegt','buchbar','wann frei','availability','available','disponible','beschikbaar','kalender','calendar'],
+    answer: `📅 <b>Verfügbarkeit prüfen</b><br><br>
+Aktuell keine Live-Kalender-Integration — bitte direkt anfragen:<br><br>
+💬 <a href="https://wa.me/41793230674?text=Hallo%20Caroline%2C%20ich%20m%C3%B6chte%20die%20Verf%C3%BCgbarkeit%20pr%C3%BCfen%20f%C3%BCr%20den%20Zeitraum:" target="_blank" style="color:var(--gold)">WhatsApp — Datum anfragen →</a><br><br>
+Oder direkt buchen auf:<br>
+🔴 <a href="https://www.airbnb.ch/rooms/1342088874495540775" target="_blank" style="color:var(--gold)">Airbnb →</a> &nbsp;
+🔵 <a href="https://www.vrbo.com/5742381ha" target="_blank" style="color:var(--gold)">VRBO →</a> &nbsp;
+🟢 <a href="https://www.bergfex.ch/graechen/chalet-lodge-monte-rosa/" target="_blank" style="color:var(--gold)">Bergfex →</a>`
+  },
+
+  // ── RESTAURANTS ──────────────────────────────────────────
+  restaurant: {
+    patterns: ['restaurant','essen','dinner','essen gehen','wo essen','gastronomie','fondue','raclette','beizen','gasthaus','restaurant','dîner','eten','restaurants'],
+    answer: `🍽️ <b>Restaurants in Grächen</b><br><br>
+5 Restaurants in Fussdistanz — Walliser Spezialitäten!<br><br>
+✓ Raclette, Fondue, Walliser Teller<br>
+✓ Fondue Chinoise Set im Chalet vorhanden<br><br>
+<a href="https://graechen.ch/de/Genuss-Kultur/Genuss-im-Tal/Restaurant-Guide" target="_blank" style="color:var(--gold)">🗺️ Alle Restaurants Grächen →</a><br><br>
+<b>Tipp:</b> Bäckerei Z'Pfünderli — sehr empfehlenswert für Frühstück! ☕`
+  },
+
+  // ── EINKAUFEN ────────────────────────────────────────────
+  einkaufen: {
+    patterns: ['einkaufen','supermarkt','coop','volg','denner','einkauf','lebensmittel','grocery','shopping','supermarket','courses','boodschappen'],
+    answer: `🛒 <b>Einkaufen in Grächen</b><br><br>
+✓ <b>Coop, Volg & Denner</b> im Dorfzentrum (5-10 Min. zu Fuss)<br>
+✓ <b>Heimlieferung</b> ab CHF 100 Einkaufswert — direkt ins Chalet!<br><br>
+💡 <b>Tipp:</b> Vor der Anreise online bestellen → bei Ankunft ist alles bereit!<br><br>
+🥐 <b>Bäckerei Z'Pfünderli</b> — Richtung Dorf, sehr empfohlen<br><br>
+<a href="https://graechen.ch/de/Genuss-Kultur/Shopping" target="_blank" style="color:var(--gold)">Shopping Grächen →</a>`
+  },
+
+  // ── SKI / SKIGEBIET ──────────────────────────────────────
+  ski: {
+    patterns: ['ski','skifahren','pisten','gondel','skilift','skigebiet','skipässe','skiticket','skischule','snowboard','skiing','pistes','skiën','pisteurs'],
+    answer: `⛷️ <b>Skifahren in Grächen</b><br><br>
+✓ <b>220 km Pisten</b> — Grächen verbunden mit Saas-Fee<br>
+✓ Direkter Gondel-Zugang vom Dorf<br>
+✓ Skischule im Dorf (Kinder + Erwachsene)<br>
+✓ Ganzjahresskifahren auf dem Allalin-Gletscher<br><br>
+🎿 <b>Skiverleih:</b> 2 Verleihe in Fussdistanz<br>
+<a href="https://graechen.ch/de/Aktivitaeten/Skifahren-und-Schlitteln/Skiverleih-Skidepot" target="_blank" style="color:var(--gold)">Skiverleih Grächen →</a><br><br>
+🎫 <b>Tickets online vorbuchen:</b><br>
+<a href="https://graechen.ch/de/Aktivitaeten/Skifahren-und-Schlitteln" target="_blank" style="color:var(--gold)">Skitickets Grächen →</a>`
+  },
+
+  // ── ZERMATT ──────────────────────────────────────────────
+  zermatt: {
+    patterns: ['zermatt','matterhorn','gornergrat'],
+    answer: `🏔️ <b>Zermatt & Matterhorn</b><br><br>
+✓ <b>45 Minuten</b> mit dem Auto von der Lodge<br>
+✓ Weltberühmtes Matterhorn<br>
+✓ Autofreies Dorf (Elektrotaxis)<br>
+✓ Ganzjahresskigebiet bis 3883 m<br><br>
+<a href="https://www.zermatt.ch" target="_blank" style="color:var(--gold)">zermatt.ch →</a>`
+  },
+
+  // ── SAAS-FEE ─────────────────────────────────────────────
+  saasfee: {
+    patterns: ['saas-fee','saas fee','saasfee','gletscher','allalin'],
+    answer: `💎 <b>Saas-Fee</b><br><br>
+✓ <b>35 Minuten</b> von der Lodge<br>
+✓ Perle der Alpen auf 1800 m<br>
+✓ Gletscherskigebiet — höchstes Drehrestaurant der Welt<br>
+✓ Autofreies Dorf<br><br>
+<a href="https://www.saas-fee.ch" target="_blank" style="color:var(--gold)">saas-fee.ch →</a>`
+  },
+
+  // ── LEUKERBAD ────────────────────────────────────────────
+  leukerbad: {
+    patterns: ['leukerbad','therme','thermal','bäder','thermalbad'],
+    answer: `🏊 <b>Leukerbad Therme</b><br><br>
+✓ <b>50 Minuten</b> von der Lodge<br>
+✓ Grösste Thermalbäder der Alpen<br>
+✓ Gemmibahn, Wanderparadies<br>
+✓ Ideal für einen Halbtages-Ausflug<br><br>
+<a href="https://www.leukerbad.ch" target="_blank" style="color:var(--gold)">leukerbad.ch →</a>`
+  },
+
+  // ── INTERNET / WLAN ──────────────────────────────────────
+  internet: {
+    patterns: ['wlan','wifi','internet','w-lan','passwort','password','netzwerk','wifi','connexion','internet'],
+    answer: `📡 <b>Internet & WLAN</b><br><br>
+✓ <b>500 Mbit/s Glasfaser</b> — ideal für Home Office & Streaming<br>
+✓ WLAN-Passwort erhalten Sie mit dem Zugangscode nach Buchungsbestätigung<br><br>
+📺 TV: Swisscom TV<br>
+→ Schwarz = Subwoofer ein/aus<br>
+→ Weiss = TV ein/aus`
+  },
+
+  // ── HAUSTIERE ────────────────────────────────────────────
+  haustier: {
+    patterns: ['hund','katze','haustier','tier','pet','dog','cat','animal','chien','chat','animaux','huisdier','hond'],
+    answer: `🐕 <b>Haustiere</b><br><br>
+✓ <b>1 Haustier erlaubt</b><br>
+✓ Aufpreis: CHF 10 pro Tag<br><br>
+Bitte bei der Buchungsanfrage erwähnen. 🙏`
+  },
+
+  // ── ABFALL ───────────────────────────────────────────────
+  abfall: {
+    patterns: ['abfall','müll','kehricht','entsorgung','recycling','garbage','waste','poubelle','afval'],
+    answer: `🗑️ <b>Abfallentsorgung</b><br><br>
+✓ Nur <b>orange Abfallsäcke</b> verwenden (erhältlich bei Coop, Volg, Denner)<br>
+✓ Entsorgung in den Holzhäuschen Richtung Dorf<br>
+→ Ca. 50 Meter vom Hotel Hannigalp`
+  },
+
+  // ── APOTHEKE / ARZT ──────────────────────────────────────
+  apotheke: {
+    patterns: ['apotheke','arzt','doktor','notfall','spital','krankenhaus','pharmacy','doctor','hospital','emergency','pharmacie','médecin','apotheek'],
+    answer: `💊 <b>Gesundheit & Notfall</b><br><br>
+🏥 <a href="https://www.medgraechen.ch/en/" target="_blank" style="color:var(--gold)">Arztpraxis Grächen →</a><br>
+💊 <a href="https://apotheke-lagger.ch/" target="_blank" style="color:var(--gold)">Apotheke Lagger (Dorfplatz) →</a><br>
+🏨 <a href="https://www.valaishospital.ch/" target="_blank" style="color:var(--gold)">Spital Visp (35 Min.) →</a><br>
+🚁 <a href="https://www.air-zermatt.ch/de/rettung" target="_blank" style="color:var(--gold)">Air Zermatt Rettung →</a><br><br>
+<b>Notruf:</b> 144 (Ambulanz) · 117 (Polizei) · 118 (Feuerwehr)`
+  },
+
+  // ── BUCHEN / BUCHUNG ─────────────────────────────────────
+  buchen: {
+    patterns: ['buchen','buchung','reservieren','reservierung','anfragen','book','reserve','booking','réserver','réservation','boeken','reserveren'],
+    answer: `📋 <b>Direkt buchen</b><br><br>
+<b>Schnellste Option:</b><br>
+💬 <a href="https://wa.me/41793230674?text=Hallo%20Caroline%2C%20ich%20m%C3%B6chte%20die%20Lodge%20Monte%20Rosa%20buchen." target="_blank" style="color:var(--gold)">WhatsApp Caroline →</a><br><br>
+✉️ <a href="mailto:hoefenmatt@outlook.com?subject=Buchungsanfrage Lodge Monte Rosa" style="color:var(--gold)">hoefenmatt@outlook.com →</a><br><br>
+<b>Oder auf Plattformen:</b><br>
+🔴 <a href="https://www.airbnb.ch/rooms/1342088874495540775" target="_blank" style="color:var(--gold)">Airbnb →</a> &nbsp;
+🔵 <a href="https://www.vrbo.com/5742381ha" target="_blank" style="color:var(--gold)">VRBO →</a> &nbsp;
+🟢 <a href="https://www.booking.com/hotel/ch/luxury-home-panoramic-view-fireplace-sauna-garden.de.html" target="_blank" style="color:var(--gold)">Booking.com →</a><br><br>
+<b>Direktbuchung = bis 15% günstiger!</b>`
+  },
+
+  // ── KAPAZITÄT / PERSONEN ─────────────────────────────────
+  kapazitaet: {
+    patterns: ['personen','gäste','wieviele','wie viele','kapazität','persons','guests','how many','personnes','combien de','personen','gasten'],
+    answer: `👥 <b>Kapazität</b><br><br>
+✓ <b>Max. 8 Personen</b> total<br>
+✓ 6 Erwachsene (Basis)<br>
+✓ + 3 Kinder im Kinderzimmer (Stockbett)<br><br>
+<b>7. & 8. Person:</b> Aufpreis CHF 70/Person/Nacht<br><br>
+<b>Zimmer:</b><br>
+→ 3 Doppelzimmer (Boxspring-Bett)<br>
+→ 1 Kinderzimmer (Stockbett 3 Schlafplätze)`
+  },
+
+  // ── ZAHLUNGSARTEN ────────────────────────────────────────
+  zahlung: {
+    patterns: ['zahlung','bezahlen','überweisung','twint','paypal','iban','bezahlung','payment','pay','paiement','payer','betalen'],
+    answer: `💳 <b>Zahlungsarten</b><br><br>
+✓ <b>TWINT:</b> +41 79 323 06 74<br>
+✓ <b>Banküberweisung:</b> Raiffeisen Unterägeri<br>
+&nbsp;&nbsp; (IBAN erhalten Sie mit der Buchungsbestätigung)<br><br>
+<b>Zahlungsplan (Direktbuchung):</b><br>
+→ 30% Anzahlung bei Buchungsbestätigung<br>
+→ 70% Restbetrag 30 Tage vor Anreise<br><br>
+Nach Zahlungseingang erhalten Sie den Zugangscode per E-Mail. 🔑`
+  },
+
+};
+
+// ── CHAT ENGINE ──────────────────────────────────────────────
+function alpaMatch(text) {
+  const t = text.toLowerCase().trim();
+  for(const [key, entry] of Object.entries(ALPA_KB)) {
+    for(const pattern of entry.patterns) {
+      if(t.includes(pattern)) return entry.answer;
+    }
+  }
+  return null;
+}
+
 function toggleAlpa(){
-  const p=document.getElementById('alpa-panel');
+  const p = document.getElementById('alpa-panel');
   p.classList.toggle('open');
 }
-function sendSug(btn){document.getElementById('chat-in').value=btn.textContent;sendChat();}
-async function sendChat(){
-  const inp=document.getElementById('chat-in');
-  const msgs=document.getElementById('chat-msgs');
-  const txt=inp.value.trim();
-  if(!txt)return;
-  inp.value='';
-  msgs.innerHTML+=`<div class="msg user">${txt}</div>`;
-  msgs.innerHTML+=`<div class="msg loading" id="thinking">…</div>`;
-  msgs.scrollTop=msgs.scrollHeight;
-  try{
-    const r=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:500,system:SYS,messages:[{role:'user',content:txt}]})
-    });
-    const data=await r.json();
-    const reply=data.content?.[0]?.text||'Bitte kontaktieren Sie uns direkt: +41 79 323 06 74';
-    document.getElementById('thinking')?.remove();
-    msgs.innerHTML+=`<div class="msg bot">${reply}</div>`;
-  }catch{
-    document.getElementById('thinking')?.remove();
-    msgs.innerHTML+=`<div class="msg bot">Bitte kontaktieren Sie uns direkt: +41 79 323 06 74 oder hoefenmatt@outlook.com</div>`;
-  }
-  msgs.scrollTop=msgs.scrollHeight;
+
+function sendSug(btn){
+  document.getElementById('chat-in').value = btn.textContent;
+  sendChat();
 }
+
+function sendChat(){
+  const inp  = document.getElementById('chat-in');
+  const msgs = document.getElementById('chat-msgs');
+  const txt  = inp.value.trim();
+  if(!txt) return;
+  inp.value = '';
+
+  // User message
+  msgs.innerHTML += `<div class="msg user">${txt}</div>`;
+  msgs.scrollTop = msgs.scrollHeight;
+
+  // Small delay for natural feel
+  setTimeout(() => {
+    const answer = alpaMatch(txt);
+    if(answer) {
+      msgs.innerHTML += `<div class="msg bot">${answer}</div>`;
+    } else {
+      // Fallback — non-standard question
+      msgs.innerHTML += `<div class="msg bot">
+        Für diese Frage helfe ich Ihnen gerne persönlich weiter:<br><br>
+        💬 <a href="https://wa.me/41793230674?text=${encodeURIComponent(txt)}" target="_blank" style="color:var(--gold)">WhatsApp Caroline →</a><br>
+        ✉️ <a href="mailto:hoefenmatt@outlook.com?subject=Frage zur Lodge Monte Rosa&body=${encodeURIComponent(txt)}" style="color:var(--gold)">E-Mail senden →</a>
+      </div>`;
+    }
+    msgs.scrollTop = msgs.scrollHeight;
+  }, 350);
+}
+
+
 
 function showFloor(f){
   document.getElementById('gr-eg').style.display = f==='eg' ? 'block' : 'none';
