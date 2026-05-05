@@ -620,6 +620,13 @@ footer{
     </div>
   </div>
   <button id="landing-skip" onclick="skipLanding()">Weiter ›</button>
+  <!-- Language selector on landing -->
+  <div style="position:absolute;top:24px;right:110px;z-index:4;display:flex;gap:2px;opacity:0;animation:lFadeUp .6s 2.2s ease forwards;">
+    <button onclick="setLang('de');event.stopPropagation()" style="font-size:.52rem;font-weight:700;background:rgba(0,0,0,.4);border:.5px solid rgba(255,255,255,.15);color:rgba(255,255,255,.5);padding:.3rem .5rem;cursor:pointer;transition:all .2s" id="landing-lb-de">DE</button>
+    <button onclick="setLang('en');event.stopPropagation()" style="font-size:.52rem;font-weight:700;background:rgba(0,0,0,.4);border:.5px solid rgba(255,255,255,.15);color:rgba(255,255,255,.5);padding:.3rem .5rem;cursor:pointer;transition:all .2s" id="landing-lb-en">EN</button>
+    <button onclick="setLang('fr');event.stopPropagation()" style="font-size:.52rem;font-weight:700;background:rgba(0,0,0,.4);border:.5px solid rgba(255,255,255,.15);color:rgba(255,255,255,.5);padding:.3rem .5rem;cursor:pointer;transition:all .2s" id="landing-lb-fr">FR</button>
+    <button onclick="setLang('nl');event.stopPropagation()" style="font-size:.52rem;font-weight:700;background:rgba(0,0,0,.4);border:.5px solid rgba(255,255,255,.15);color:rgba(255,255,255,.5);padding:.3rem .5rem;cursor:pointer;transition:all .2s" id="landing-lb-nl">NL</button>
+  </div>
   <div id="landing-content">
     <div class="l-eye">Grächen · Wallis · Schweiz</div>
     <div id="l-coords" onclick="goLanding()">
@@ -666,6 +673,7 @@ footer{
       <button class="lang-btn active" id="lb-de" onclick="setLang('de')">DE</button>
       <button class="lang-btn"        id="lb-en" onclick="setLang('en')">EN</button>
       <button class="lang-btn"        id="lb-fr" onclick="setLang('fr')">FR</button>
+      <button class="lang-btn"        id="lb-nl" onclick="setLang('nl')">NL</button>
     </div>
     <button class="nav-cta" onclick="goTo('buchen')" data-t="nav-cta">✉ Anfragen</button>
   </div>
@@ -1651,8 +1659,8 @@ function toggleMusic() {
   const dot   = document.getElementById('music-dot');
   const lbl   = document.getElementById('music-lbl');
   const btn   = document.getElementById('music-btn');
-  if(!audio.src || audio.src === window.location.href) {
-    // No audio file yet — show info
+  // Check if audio source loaded
+  if(audio.readyState === 0 && !audio.querySelector('source[src]')) {
     lbl.textContent = '♪ Keine Audiodatei';
     setTimeout(() => { lbl.textContent = '♪ Musik'; }, 2000);
     return;
@@ -1859,6 +1867,27 @@ const TRANSLATIONS = {
     'gal-label':'Gallery','umb-label':'Grächen · Valais · Region',
     'book-label':'Direct Booking · No Platform Fee',
   },
+  nl: {
+    'nav-chalet':'Chalet','nav-galerie':'Galerij','nav-graeschen':'Grächen',
+    'nav-verfug':'Beschikbaarheid','nav-services':'Services','nav-cta':'✉ Aanvragen',
+    'hero-tag':'Uw Luxe Alpine Escape',
+    'hero-eye':'Grächen · Wallis · Zwitserland · 1617 m',
+    'gal-label':'Galerij','umb-label':'Grächen · Wallis · Omgeving',
+    'book-label':'Directe boeking · Geen platformkosten',
+    'calc-title':'Prijscalculator','calc-sub':'Directe prijs + vergelijking Airbnb',
+    'calc-arrive':'Aankomst','calc-depart':'Vertrek','calc-guests':'Gasten',
+    'calc-btn':'Prijs berekenen →',
+    'book-title':'Directe boeking','book-sub':'Geen platformkosten — persoonlijk. Reactie binnen enkele uren.',
+    'hero-btn1':'✉ Nu aanvragen','hero-btn2':'📸 Galerij','hero-btn3':'🎬 Video',
+    'storno-good':'Volledige terugbetaling','storno-bad':'Geen terugbetaling',
+    'storno-note':'Reisverzekering aanbevolen.',
+    'gal-title':'Het Lodge van binnen & buiten',
+    'gal-all':'Alles','gal-wohnen':'Woonkamer','gal-schlafen':'Slaapkamers',
+    'gal-wellness':'Wellness · Sauna','gal-bad':'Badkamer','gal-aussen':'Exterieur',
+    'umb-title':'7 ervaringen rondom',
+    'rev-fav':'Favoriete accommodatie','rev-subtitle':'Een van de meest populaire accommodaties op Airbnb',
+    'svc-title':'Alles wat u nodig heeft',
+  },
   fr: {
     'nav-chalet':'Chalet','nav-galerie':'Galerie','nav-graeschen':'Grächen',
     'nav-verfug':'Disponibilité','nav-services':'Services','nav-cta':'✉ Demander',
@@ -1928,60 +1957,221 @@ function acc(q){
 }
 
 // ── PRICE CALC ──────────────────────────────────
-const PRICE_TABLE=[
-  {m:[3,4,5],w:2800},{m:[8,9],w:3000},{m:[2,10],w:3200},
-  {m:[6,7],w:4200},{m:[11,0,1],w:4200}
+// ══════════════════════════════════════════════════════
+// PREISLOGIK — Ferienzeiten CH/DE (BW + Bayern)
+// Aktualisierbar: Jahreszahlen anpassen für 2026/2027
+// ══════════════════════════════════════════════════════
+
+// Ferien-Perioden: [YYYY-MM-DD, YYYY-MM-DD, wöchentlicher Preis]
+const FERIEN = [
+  // ── WEIHNACHTEN / NEUJAHR ─────────────────────────
+  ['2025-12-22','2026-01-06', 6000], // Weihnachten
+  ['2026-12-22','2027-01-06', 6000],
+
+  // ── SILVESTER (Preisaufschlag letzte Dezemberwoche) ─
+  ['2025-12-27','2026-01-03', 6500],
+  ['2026-12-27','2027-01-03', 6500],
+
+  // ── SPORTFERIEN / WINTER ──────────────────────────
+  // Bayern: Feb
+  ['2026-02-14','2026-02-22', 4500],
+  ['2027-02-13','2027-02-21', 4500],
+  // Baden-Württemberg: Feb
+  ['2026-02-21','2026-03-01', 4500],
+  ['2027-02-20','2027-03-01', 4500],
+  // Schweiz Wallis: Feb
+  ['2026-02-07','2026-02-22', 4500],
+
+  // ── OSTERN ────────────────────────────────────────
+  // 2026: Ostern 5. Apr
+  ['2026-03-28','2026-04-12', 3800],
+  // Bayern Osterferien 2026: 28 Mär – 10 Apr
+  ['2026-03-28','2026-04-10', 3800],
+  // BW Osterferien 2026: 2 Apr – 17 Apr  
+  ['2026-04-02','2026-04-17', 3800],
+  // 2027: Ostern 28. Mär
+  ['2027-03-27','2027-04-11', 3800],
+
+  // ── PFINGSTEN ─────────────────────────────────────
+  // 2026: Pfingsten 24. Mai — Bayern 22-30 Mai, BW 26 Mai – 6 Jun
+  ['2026-05-22','2026-06-06', 3500],
+  // 2027: Pfingsten 13. Jun
+  ['2027-06-05','2027-06-19', 3500],
+
+  // ── SOMMER ────────────────────────────────────────
+  // Bayern Sommerferien 2026: 27 Jul – 7 Sep
+  ['2026-07-27','2026-09-07', 4800],
+  // BW Sommerferien 2026: 23 Jul – 5 Sep
+  ['2026-07-23','2026-09-05', 4800],
+  // Schweiz Sommer (Jul/Aug allgemein)
+  ['2026-07-01','2026-08-31', 4200],
+  ['2027-07-01','2027-08-31', 4200],
+
+  // ── HERBSTFERIEN ──────────────────────────────────
+  // Bayern Herbst 2026: 26 Okt – 7 Nov
+  ['2026-10-26','2026-11-07', 3200],
+  // BW Herbst 2026: 26 Okt – 31 Okt
+  ['2026-10-26','2026-10-31', 3200],
+  // 2027
+  ['2027-10-25','2027-11-06', 3200],
+
+  // ── SCHWEIZER KANTONE ZH/ZG/LU/BS/AG ─────────────
+  // Herbstferien CH 2026 (meist Okt)
+  ['2026-10-10','2026-10-25', 3200],
+  ['2027-10-09','2027-10-24', 3200],
+  // Frühlingsferien CH 2026
+  ['2026-04-11','2026-04-25', 3500],
+  ['2027-04-10','2027-04-24', 3500],
+
+  // ── NIEDERLANDE (NL) ──────────────────────────────
+  // Meivakantie (Mai-Ferien) 2026
+  ['2026-04-25','2026-05-10', 3500],
+  ['2027-04-24','2027-05-09', 3500],
+  // Zomervakantie (Sommer) 2026 — variiert je Region
+  ['2026-07-18','2026-08-30', 4800],
+  ['2027-07-17','2027-08-29', 4800],
+  // Herfstvakantie (Herbst) 2026
+  ['2026-10-17','2026-10-25', 3200],
+  ['2027-10-16','2027-10-24', 3200],
+  // Kerstvakantie (Weihnachten) — already in Xmas block
 ];
-function weeklyRate(d){
-  const m=d.getMonth(),day=d.getDate();
-  if(m===11&&day>=28)return 6500;
-  if(m===0&&day<=3)return 6500;
-  if(m===11&&day>=23)return 6000;
-  if(m===0&&day<=10)return 5000;
-  if(m===1)return 4500;
-  const p=PRICE_TABLE.find(x=>x.m.includes(m));
-  return p?p.w:3200;
+
+// Basis-Saisonpreise (wenn keine Ferienzeit)
+const BASIS = [
+  {m:[3,4,5], w:2800},   // Apr–Jun Nebensaison
+  {m:[8,9],   w:3000},   // Sep–Okt
+  {m:[2,10],  w:3200},   // Mär/Nov Schulter
+  {m:[6,7],   w:4200},   // Jul–Aug Sommer
+  {m:[11,0,1],w:4200},   // Dez–Feb Winter
+];
+
+function getWeeklyRate(date) {
+  const ds = date.toISOString().slice(0,10);
+  // Check Ferien (longest match / highest price wins for overlaps)
+  let ferienPrice = null;
+  for(const [von, bis, preis] of FERIEN) {
+    if(ds >= von && ds < bis) {
+      if(ferienPrice === null || preis > ferienPrice) ferienPrice = preis;
+    }
+  }
+  if(ferienPrice !== null) return ferienPrice;
+  // Basis
+  const m = date.getMonth();
+  const bp = BASIS.find(b => b.m.includes(m));
+  return bp ? bp.w : 3200;
 }
+
+function getSaisonLabel(rate) {
+  if(rate >= 6000) return {label:'Weihnachten / Silvester', color:'#f8c060'};
+  if(rate >= 4500) return {label:'Hochsaison · Ferienzeit', color:'#e8803a'};
+  if(rate >= 4000) return {label:'Sommer / Winter', color:'#c9a84c'};
+  if(rate >= 3500) return {label:'Ostern / Pfingsten', color:'#a0c840'};
+  if(rate >= 3000) return {label:'Schulterzeit', color:'#70a870'};
+  return {label:'Nebensaison', color:'rgba(100,200,100,.8)'};
+}
+
+
 function calcP(){
-  const a=document.getElementById('pc-a').value;
-  const d=document.getElementById('pc-d').value;
-  if(!a||!d)return;
-  const arr=new Date(a),dep=new Date(d);
-  if(dep<=arr)return;
-  const nights=Math.round((dep-arr)/86400000);
-  let base=0;
-  for(let i=0;i<nights;i++){const dt=new Date(arr);dt.setDate(arr.getDate()+i);base+=weeklyRate(dt)/7;}
-  base=Math.round(base);
-  const g=parseInt(document.getElementById('pc-g').value);
-  const pet=document.getElementById('pc-pet').checked;
-  const extra=Math.max(0,g-6)*70*nights;
-  const petFee=pet?10*nights:0;
-  const clean=350,kaution=500,kurtaxe=Math.round(3.8*g*nights);
-  const total=base+extra+petFee+clean;
-  const airbnb=Math.round((base+clean)*1.14);
-  const save=airbnb-total;
-  let html=`<div class="pc-row"><span>Unterkunft (${nights} Nächte)</span><span>CHF ${base.toLocaleString('de-CH')}</span></div>`;
-  if(extra>0)html+=`<div class="pc-row"><span>Extra-Gäste (${g-6}× CHF 70/Nacht)</span><span>CHF ${extra.toLocaleString('de-CH')}</span></div>`;
-  if(petFee>0)html+=`<div class="pc-row"><span>Haustier (CHF 10/Tag)</span><span>CHF ${petFee}</span></div>`;
-  html+=`<div class="pc-row"><span>Endreinigung</span><span>CHF 350</span></div>`;
-  html+=`<div class="pc-row" style="font-size:.62rem;color:rgba(255,255,255,.28)"><span>Kaution (Rückgabe)</span><span>CHF 500</span></div>`;
-  html+=`<div class="pc-row" style="font-size:.62rem;color:rgba(255,255,255,.28)"><span>Kurtaxe ~CHF 3.80/P/Nacht</span><span>~CHF ${kurtaxe}</span></div>`;
-  html+=`<div class="pc-total pc-row"><span>Total Direktbuchung</span><span>CHF ${total.toLocaleString('de-CH')}</span></div>`;
-  if(save>0)html+=`<div class="pc-saving">💰 CHF ${save.toLocaleString('de-CH')} günstiger als Airbnb (dort ~CHF ${airbnb.toLocaleString('de-CH')})</div>`;
-  html+=`<div style="margin-top:.5rem;font-size:.62rem;color:rgba(100,200,100,.65)">✓ Bettwäsche & Handtücher inklusive · ✓ Sauna inklusive</div>`;
-  if(nights>=7) html+=`<div style="font-size:.62rem;color:rgba(100,200,100,.65)">✓ Elektrotaxi Anreise & Abreise inklusive (CHF 40 Wert)</div>`;
-  const r=document.getElementById('calc-res');
-  r.innerHTML=html;r.classList.add('show');
+  const a = document.getElementById('pc-a').value;
+  const d = document.getElementById('pc-d').value;
+  if(!a || !d) return;
+  const arr = new Date(a), dep = new Date(d);
+  if(dep <= arr) return;
+
+  const nights = Math.round((dep - arr) / 86400000);
+  const g      = parseInt(document.getElementById('pc-g').value);
+  const pet    = document.getElementById('pc-pet').checked;
+
+  // Calculate nightly prices
+  let base = 0;
+  let maxRate = 0;
+  for(let i = 0; i < nights; i++){
+    const dt = new Date(arr);
+    dt.setDate(arr.getDate() + i);
+    const r = getWeeklyRate(dt) / 7;
+    base += r;
+    if(r * 7 > maxRate) maxRate = r * 7;
+  }
+  base = Math.round(base);
+
+  const extra   = Math.max(0, g - 6) * 70 * nights;
+  const petFee  = pet ? 10 * nights : 0;
+  const clean   = 350;
+  const kaution = 500;
+  const kurtaxe = Math.round(3.8 * g * nights);
+  const total   = base + extra + petFee + clean;
+
+  // Airbnb comparison (14% fee on top)
+  const airbnbBase  = Math.round(maxRate * nights / 7 * (1 + 0.14));
+  const airbnbTotal = airbnbBase + Math.round(clean * 1.14);
+  const save        = airbnbTotal - total;
+
+  const saison = getSaisonLabel(maxRate);
+
+  let html = '';
+
+  // Saison badge
+  html += `<div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.8rem;padding:.5rem .8rem;background:rgba(255,255,255,.03);border-left:3px solid ${saison.color}">
+    <span style="font-size:.65rem;font-weight:700;color:${saison.color}">${saison.label}</span>
+    <span style="font-size:.6rem;color:rgba(255,255,255,.3);margin-left:auto">${nights} Nächte</span>
+  </div>`;
+
+  html += `<div class="pc-row"><span>Unterkunft</span><span>CHF ${base.toLocaleString('de-CH')}</span></div>`;
+  if(extra > 0) html += `<div class="pc-row"><span>Extra-Gäste (${g-6}× CHF 70/Nacht)</span><span>CHF ${extra.toLocaleString('de-CH')}</span></div>`;
+  if(petFee > 0) html += `<div class="pc-row"><span>Haustier (CHF 10/Tag)</span><span>CHF ${petFee}</span></div>`;
+  html += `<div class="pc-row"><span>Endreinigung</span><span>CHF 350</span></div>`;
+  html += `<div class="pc-row" style="font-size:.62rem;color:rgba(255,255,255,.28)"><span>Kaution (wird zurückerstattet)</span><span>CHF ${kaution}</span></div>`;
+  html += `<div class="pc-row" style="font-size:.62rem;color:rgba(255,255,255,.28)"><span>Kurtaxe ca. CHF 3.80/P/Nacht</span><span>~CHF ${kurtaxe}</span></div>`;
+
+  html += `<div class="pc-total pc-row" style="margin-top:.6rem;padding-top:.6rem;border-top:.5px solid rgba(255,255,255,.1)">
+    <span>Total Direktbuchung</span>
+    <span style="color:var(--gl);font-family:var(--serif);font-size:1.3rem">CHF ${total.toLocaleString('de-CH')}</span>
+  </div>`;
+
+  if(save > 0) {
+    html += `<div class="pc-saving">
+      💰 CHF ${save.toLocaleString('de-CH')} günstiger als Airbnb<br>
+      <span style="font-size:.6rem;opacity:.7">(Airbnb: ~CHF ${airbnbTotal.toLocaleString('de-CH')} inkl. 14% Servicegebühr)</span>
+    </div>`;
+  }
+
+  html += `<div style="margin-top:.6rem;font-size:.62rem;color:rgba(100,200,100,.7);line-height:1.7">
+    ✓ Bettwäsche & Handtücher inklusive &nbsp;·&nbsp; ✓ Sauna inklusive
+    ${nights >= 7 ? '<br>✓ Elektrotaxi An-/Abreise inklusive (CHF 40 Wert)' : ''}
+  </div>`;
+
+  // CTA button
+  const msg = encodeURIComponent(`Hallo Caroline, ich möchte die Lodge Monte Rosa anfragen:\nAnreise: ${a}\nAbreise: ${d}\nPersonen: ${g}\nBerechneter Preis: CHF ${total.toLocaleString('de-CH')}`);
+  html += `<a href="https://wa.me/41793230674?text=${msg}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:.5rem;margin-top:.8rem;background:var(--gold);color:var(--dark);padding:.75rem;font-family:var(--sans);font-size:.64rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;transition:background .2s">
+    💬 Jetzt anfragen & Dates reservieren
+  </a>`;
+
+  const r = document.getElementById('calc-res');
+  r.innerHTML = html;
+  r.classList.add('show');
 }
+
 
 // ── REVEAL ON SCROLL ────────────────────────────
 const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in');});},{threshold:.1});
 document.addEventListener('DOMContentLoaded',()=>{document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));});
 
 // ── ALPA CONCIERGE ──────────────────────────────
-const SYS=`Du bist ALPA, der persönliche Alpine Concierge der Lodge Monte Rosa in Graechen, Wallis. Antworte in der Sprache des Gastes (DE/EN/FR). Sei freundlich, hilfsbereit und kurz.
-Wichtige Infos: Check-in 16:00, Check-out 10:00. Code per E-Mail nach Buchung. Parking Central Garage Baergji 547, Nr.2. Sauna 2h/Tag inkl., schwarzer Knopf = Hauptschalter. Kamin: Holz links auf Terrasse. Kurtaxe CHF 3.80/P/Nacht. Kaution CHF 500. Endreinigung CHF 350. Haustier CHF 10/Tag. Extra-Gaeste ab 7. Person CHF 70/Nacht. Bettwaesche & Handtuecher inklusive. Kontakt: Caroline +41 79 323 06 74, hoefenmatt@outlook.com. Zermatt 45 Min., Saas-Fee 35 Min., Leukerbad 50 Min. Stornierung: 100% Rueckerstattung bis 30 Tage, danach keine. E-Taxi: GRATIS bei 7+ Naechten (sonst CHF 40 retour). Einkauf-Lieferung: Coop/Volg/Denner liefert ab CHF 100 direkt ins Chalet - vor Anreise bestellen empfohlen!`;
+const SYS=`Du bist ALPA, der persönliche Alpine Concierge der Lodge Monte Rosa in Grächen, Wallis, Schweiz. Antworte IMMER in der Sprache des Gastes (DE/EN/FR/NL). Sei warmherzig und kompetent.
 
+LODGE: Heimine 616, CH-3925 Grächen, 1617m. 185m², 5.5 Zi., max. 8 Gäste. 3 DZ Boxspring + Kinderzimmer (3 Plätze). Finn. Sauna 40m², Badewanne, XXL-Dusche. Monolith-Kamin 180° Panorama Zermatt/4000er. Glasbalkon 30m², Terrasse 50m². 500 Mbit WLAN. Miele-Küche. Raclette/Fondue vorhanden. Airbnb 5.0★.
+
+CHECK-IN: 16:00 / CHECK-OUT: 10:00. Code per E-Mail nach Zahlung. Parking: Central Garage Bärgji 547, Nr.2. E-Taxi gratis bei 7+ Nächten (sonst CHF 40 retour).
+
+PREISE (direkt): Nebensaison CHF 2800/Wo, Schulter CHF 3200, Sommer/Winter CHF 4200, Sportferien Feb CHF 4500, Weihnachten CHF 6000, Silvester CHF 6500. Endreinigung CHF 350, Kaution CHF 500, Kurtaxe CHF 3.80/P/Nacht. Bettwäsche/Handtücher INKLUSIVE. Extra-Gast ab 7. CHF 70/Nacht. Haustier CHF 10/Tag.
+
+BUCHUNG: Caroline +41 79 323 06 74 (WhatsApp), hoefenmatt@outlook.com. Auch: Airbnb, VRBO, Bergfex. Zahlung: Raiffeisen Unterägeri oder TWINT. 30% Anzahlung, Rest 30 Tage vorher. Storno: 100% bis 30 Tage, danach keine Rückerstattung.
+
+SAUNA: 2h/Tag inkl. Schwarzer Knopf = Hauptschalter (immer zuerst!). Bedienfeld: links unten = Sauna, Mitte = Licht.
+
+UMGEBUNG: Zermatt 45 Min., Saas-Fee 35 Min., Leukerbad 50 Min. Skigebiet direkt (220km Pisten). Europa-Höhenweg Nr.5 ab Haustür. Restaurants 5x fussläufig. Coop/Volg/Denner Lieferung ab CHF 100.
+
+KAMIN: Holz links Terrasse. TV: Schwarz=Subwoofer, Weiss=TV. Abfall: orange Säcke. Bei Abreise: Bettwäsche abziehen + neben Waschmaschine legen.`;
 function toggleAlpa(){
   const p=document.getElementById('alpa-panel');
   p.classList.toggle('open');
@@ -2056,4 +2246,177 @@ function closeVideo(){
 </div>
 
 </body>
-</html>
+</html><!-- Floor plan tabs -->
+    <div style="display:flex;gap:0;margin-bottom:1.5rem;border-bottom:.5px solid rgba(255,255,255,.08);" class="reveal">
+      <button id="gr-tab-eg" onclick="showFloor('eg')" style="padding:.6rem 1.8rem;font-size:.6rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;background:rgba(201,168,76,.12);border:none;border-bottom:2px solid var(--gold);color:var(--gold);cursor:pointer;margin-bottom:-1px">EG · Erdgeschoss</button>
+      <button id="gr-tab-og" onclick="showFloor('og')" style="padding:.6rem 1.8rem;font-size:.6rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;background:none;border:none;border-bottom:2px solid transparent;color:rgba(255,255,255,.35);cursor:pointer;margin-bottom:-1px">OG · Obergeschoss</button>
+    </div>
+
+    <!-- EG FLOOR PLAN -->
+    <div id="floor-eg" class="reveal">
+    <svg width="100%" viewBox="0 0 720 500" xmlns="http://www.w3.org/2000/svg" style="max-width:900px;display:block;margin:0 auto">
+      <defs>
+        <pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+          <line x1="0" y1="0" x2="0" y2="8" stroke="#c9a84c" stroke-width=".5" stroke-opacity=".3"/>
+        </pattern>
+      </defs>
+      <!-- Title -->
+      <text x="360" y="18" text-anchor="middle" font-family="Georgia,serif" font-size="12" fill="rgba(201,168,76,.7)" font-style="italic">Erdgeschoss (EG)</text>
+      <!-- Outer wall -->
+      <rect x="30" y="28" width="660" height="440" rx="3" fill="none" stroke="rgba(255,255,255,.25)" stroke-width="3"/>
+
+      <!-- NORD (top): Eingang + Flur + Reduit + Waschen -->
+      <rect x="30" y="28" width="660" height="80" fill="rgba(201,168,76,.06)" stroke="rgba(255,255,255,.12)" stroke-width=".8"/>
+      <!-- Eingang -->
+      <rect x="30" y="28" width="110" height="80" fill="rgba(201,168,76,.08)" stroke="rgba(255,255,255,.15)" stroke-width=".8"/>
+      <text x="85" y="64" text-anchor="middle" font-family="Georgia,serif" font-size="10" fill="rgba(255,255,255,.65)" font-style="italic">Eingang</text>
+      <text x="85" y="78" text-anchor="middle" font-family="Lato,sans-serif" font-size="7.5" fill="rgba(201,168,76,.6)" font-weight="700" letter-spacing="1">ENTRÉE</text>
+      <!-- Door arc -->
+      <path d="M140 108 Q140 88 160 88" fill="none" stroke="rgba(255,255,255,.3)" stroke-width=".7"/>
+      <!-- Flur -->
+      <rect x="140" y="28" width="330" height="80" fill="rgba(255,255,255,.025)" stroke="rgba(255,255,255,.1)" stroke-width=".8"/>
+      <text x="305" y="70" text-anchor="middle" font-family="Georgia,serif" font-size="10" fill="rgba(255,255,255,.5)" font-style="italic">Flur · Treppe</text>
+      <!-- Reduit + Waschen -->
+      <rect x="470" y="28" width="100" height="80" fill="rgba(255,255,255,.02)" stroke="rgba(255,255,255,.1)" stroke-width=".8"/>
+      <text x="520" y="62" text-anchor="middle" font-family="Georgia,serif" font-size="9" fill="rgba(255,255,255,.4)" font-style="italic">Réduit</text>
+      <text x="520" y="74" text-anchor="middle" font-family="Lato,sans-serif" font-size="7" fill="rgba(255,255,255,.3)" letter-spacing=".5">Waschen</text>
+      <!-- WC -->
+      <rect x="570" y="28" width="120" height="80" fill="rgba(138,92,240,.06)" stroke="rgba(255,255,255,.1)" stroke-width=".8"/>
+      <text x="630" y="70" text-anchor="middle" font-family="Georgia,serif" font-size="10" fill="rgba(255,255,255,.45)" font-style="italic">WC</text>
+
+      <!-- MITTE LINKS: Wohnen + Kamin -->
+      <rect x="30" y="108" width="250" height="175" fill="rgba(74,124,78,.09)" stroke="rgba(74,124,78,.3)" stroke-width="1.2"/>
+      <text x="155" y="180" text-anchor="middle" font-family="Georgia,serif" font-size="13" fill="rgba(255,255,255,.8)" font-style="italic">Wohnen</text>
+      <!-- Kamin symbol -->
+      <rect x="55" y="200" width="38" height="12" rx="2" fill="rgba(201,100,30,.5)" stroke="rgba(201,100,30,.7)" stroke-width=".8"/>
+      <text x="74" y="195" text-anchor="middle" font-size="10" fill="rgba(201,100,30,.8)">🔥</text>
+      <text x="74" y="228" text-anchor="middle" font-family="Lato,sans-serif" font-size="7" fill="rgba(201,100,30,.55)" font-weight="700" letter-spacing=".5">KAMIN</text>
+
+      <!-- MITTE: Kochen + Essen -->
+      <rect x="280" y="108" width="205" height="175" fill="rgba(61,107,224,.06)" stroke="rgba(61,107,224,.25)" stroke-width="1"/>
+      <text x="382" y="172" text-anchor="middle" font-family="Georgia,serif" font-size="11" fill="rgba(255,255,255,.7)" font-style="italic">Kochen</text>
+      <!-- Kitchen island -->
+      <rect x="315" y="185" width="90" height="28" rx="2" fill="rgba(201,168,76,.2)" stroke="rgba(201,168,76,.4)" stroke-width=".7"/>
+      <text x="360" y="218" text-anchor="middle" font-family="Georgia,serif" font-size="10" fill="rgba(255,255,255,.5)" font-style="italic">Essen</text>
+
+      <!-- RECHTS: Sauna + Wellness -->
+      <rect x="485" y="108" width="205" height="175" fill="rgba(201,168,76,.1)" stroke="rgba(201,168,76,.5)" stroke-width="1.5"/>
+      <text x="587" y="170" text-anchor="middle" font-family="Georgia,serif" font-size="12" fill="rgba(201,168,76,.95)" font-style="italic">Sauna</text>
+      <text x="587" y="186" text-anchor="middle" font-family="Georgia,serif" font-size="10" fill="rgba(201,168,76,.7)" font-style="italic">Wellness</text>
+      <text x="587" y="200" text-anchor="middle" font-family="Lato,sans-serif" font-size="7" fill="rgba(201,168,76,.55)" font-weight="700" letter-spacing="1">BADEWANNE · DUSCHE</text>
+      <!-- Sauna box -->
+      <rect x="508" y="215" width="60" height="55" rx="2" fill="rgba(201,100,30,.15)" stroke="rgba(201,100,30,.35)" stroke-width=".8"/>
+      <text x="538" y="246" text-anchor="middle" font-size="12">🧖</text>
+
+      <!-- UNTEN LINKS: Schlafzimmer 1 -->
+      <rect x="30" y="283" width="215" height="140" fill="rgba(61,107,224,.08)" stroke="rgba(61,107,224,.28)" stroke-width="1"/>
+      <text x="137" y="340" text-anchor="middle" font-family="Georgia,serif" font-size="11" fill="rgba(255,255,255,.75)" font-style="italic">Schlafzimmer 1</text>
+      <text x="137" y="355" text-anchor="middle" font-family="Lato,sans-serif" font-size="7" fill="rgba(201,168,76,.5)" font-weight="700" letter-spacing=".5">BOXSPRING</text>
+      <!-- Bed -->
+      <rect x="60" y="295" width="70" height="50" rx="3" fill="none" stroke="rgba(255,255,255,.2)" stroke-width=".8"/>
+      <line x1="60" y1="312" x2="130" y2="312" stroke="rgba(255,255,255,.15)" stroke-width=".6"/>
+
+      <!-- UNTEN MITTE: Kinderzimmer -->
+      <rect x="245" y="283" width="185" height="140" fill="rgba(74,180,74,.07)" stroke="rgba(74,180,74,.28)" stroke-width="1"/>
+      <text x="337" y="338" text-anchor="middle" font-family="Georgia,serif" font-size="11" fill="rgba(255,255,255,.72)" font-style="italic">Kinderzimmer</text>
+      <text x="337" y="353" text-anchor="middle" font-family="Lato,sans-serif" font-size="7" fill="rgba(74,180,74,.6)" font-weight="700" letter-spacing=".5">STOCKBETT · 3 PLÄTZE</text>
+
+      <!-- UNTEN RECHTS: Bad EG -->
+      <rect x="430" y="283" width="135" height="85" fill="rgba(138,92,240,.07)" stroke="rgba(138,92,240,.22)" stroke-width=".8"/>
+      <text x="497" y="323" text-anchor="middle" font-family="Georgia,serif" font-size="10" fill="rgba(255,255,255,.55)" font-style="italic">Bad EG</text>
+
+      <!-- Balkon EG rechts -->
+      <rect x="565" y="283" width="125" height="85" fill="url(#hatch)" stroke="rgba(201,168,76,.3)" stroke-width=".8" stroke-dasharray="4 2"/>
+      <text x="627" y="320" text-anchor="middle" font-family="Georgia,serif" font-size="9" fill="rgba(201,168,76,.6)" font-style="italic">Balkon EG</text>
+
+      <!-- TERRASSE SÜD -->
+      <rect x="30" y="423" width="660" height="45" fill="url(#hatch)" stroke="rgba(201,168,76,.35)" stroke-width="1" stroke-dasharray="5 3"/>
+      <text x="360" y="450" text-anchor="middle" font-family="Lato,sans-serif" font-size="9" fill="rgba(201,168,76,.75)" font-weight="700" letter-spacing="1.5">TERRASSE SÜD · 50 m² · ALPENPANORAMA ZERMATT</text>
+
+      <!-- Compass -->
+      <text x="700" y="45" text-anchor="middle" font-family="Lato,sans-serif" font-size="8" font-weight="700" fill="rgba(201,168,76,.6)">N</text>
+      <line x1="700" y1="48" x2="700" y2="64" stroke="rgba(201,168,76,.4)" stroke-width="1.2"/>
+      <text x="700" y="74" text-anchor="middle" font-family="Lato,sans-serif" font-size="8" fill="rgba(255,255,255,.25)">S</text>
+    </svg>
+    </div>
+
+    <!-- OG FLOOR PLAN -->
+    <div id="floor-og" style="display:none" class="reveal">
+    <svg width="100%" viewBox="0 0 720 460" xmlns="http://www.w3.org/2000/svg" style="max-width:900px;display:block;margin:0 auto">
+      <text x="360" y="18" text-anchor="middle" font-family="Georgia,serif" font-size="12" fill="rgba(201,168,76,.7)" font-style="italic">Obergeschoss (OG)</text>
+      <rect x="30" y="28" width="660" height="395" rx="3" fill="none" stroke="rgba(255,255,255,.25)" stroke-width="3"/>
+
+      <!-- NORD: Gang / Treppe -->
+      <rect x="30" y="28" width="660" height="70" fill="rgba(201,168,76,.05)" stroke="rgba(255,255,255,.1)" stroke-width=".8"/>
+      <text x="360" y="67" text-anchor="middle" font-family="Georgia,serif" font-size="10" fill="rgba(255,255,255,.5)" font-style="italic">Gang · Treppe OG</text>
+
+      <!-- LINKS: Schlafzimmer 2 (Master) -->
+      <rect x="30" y="98" width="220" height="175" fill="rgba(61,107,224,.09)" stroke="rgba(61,107,224,.3)" stroke-width="1.2"/>
+      <text x="140" y="165" text-anchor="middle" font-family="Georgia,serif" font-size="12" fill="rgba(255,255,255,.8)" font-style="italic">Schlafzimmer 2</text>
+      <text x="140" y="180" text-anchor="middle" font-family="Lato,sans-serif" font-size="7" fill="rgba(201,168,76,.55)" font-weight="700" letter-spacing=".5">BOXSPRING · PANORAMA</text>
+      <rect x="55" y="110" width="75" height="50" rx="3" fill="none" stroke="rgba(255,255,255,.2)" stroke-width=".8"/>
+      <line x1="55" y1="127" x2="130" y2="127" stroke="rgba(255,255,255,.15)" stroke-width=".6"/>
+
+      <!-- MITTE LINKS: Bad 1 En-Suite -->
+      <rect x="250" y="98" width="130" height="105" fill="rgba(138,92,240,.07)" stroke="rgba(138,92,240,.25)" stroke-width=".8"/>
+      <text x="315" y="143" text-anchor="middle" font-family="Georgia,serif" font-size="10" fill="rgba(255,255,255,.55)" font-style="italic">Bad 1</text>
+      <text x="315" y="157" text-anchor="middle" font-family="Lato,sans-serif" font-size="7" fill="rgba(138,92,240,.5)" font-weight="700" letter-spacing=".5">EN-SUITE</text>
+
+      <!-- MITTE: Gäste WC -->
+      <rect x="380" y="98" width="100" height="105" fill="rgba(138,92,240,.05)" stroke="rgba(255,255,255,.1)" stroke-width=".8"/>
+      <text x="430" y="148" text-anchor="middle" font-family="Georgia,serif" font-size="9" fill="rgba(255,255,255,.4)" font-style="italic">Gäste WC</text>
+
+      <!-- RECHTS: Schlafzimmer 3 -->
+      <rect x="480" y="98" width="210" height="175" fill="rgba(61,107,224,.08)" stroke="rgba(61,107,224,.25)" stroke-width="1"/>
+      <text x="585" y="168" text-anchor="middle" font-family="Georgia,serif" font-size="12" fill="rgba(255,255,255,.75)" font-style="italic">Schlafzimmer 3</text>
+      <text x="585" y="183" text-anchor="middle" font-family="Lato,sans-serif" font-size="7" fill="rgba(201,168,76,.5)" font-weight="700" letter-spacing=".5">BOXSPRING · BALKON</text>
+      <rect x="505" y="108" width="75" height="50" rx="3" fill="none" stroke="rgba(255,255,255,.18)" stroke-width=".8"/>
+      <line x1="505" y1="125" x2="580" y2="125" stroke="rgba(255,255,255,.12)" stroke-width=".6"/>
+
+      <!-- UNTEN LINKS: Schlafzimmer 4 -->
+      <rect x="30" y="273" width="220" height="115" fill="rgba(61,107,224,.08)" stroke="rgba(61,107,224,.25)" stroke-width="1"/>
+      <text x="140" y="325" text-anchor="middle" font-family="Georgia,serif" font-size="12" fill="rgba(255,255,255,.75)" font-style="italic">Schlafzimmer 4</text>
+      <text x="140" y="340" text-anchor="middle" font-family="Lato,sans-serif" font-size="7" fill="rgba(201,168,76,.5)" font-weight="700" letter-spacing=".5">BOXSPRING · BERGBLICK</text>
+
+      <!-- UNTEN MITTE: Bad 2 -->
+      <rect x="250" y="203" width="230" height="125" fill="rgba(138,92,240,.07)" stroke="rgba(138,92,240,.22)" stroke-width=".8"/>
+      <text x="365" y="262" text-anchor="middle" font-family="Georgia,serif" font-size="11" fill="rgba(255,255,255,.55)" font-style="italic">Bad 2</text>
+      <text x="365" y="277" text-anchor="middle" font-family="Lato,sans-serif" font-size="7" fill="rgba(138,92,240,.45)" font-weight="700" letter-spacing=".5">DUSCHE · WC</text>
+
+      <!-- UNTEN RECHTS: Tank/Technik + Stauraum -->
+      <rect x="480" y="273" width="210" height="115" fill="rgba(255,255,255,.02)" stroke="rgba(255,255,255,.08)" stroke-width=".8"/>
+      <text x="585" y="333" text-anchor="middle" font-family="Georgia,serif" font-size="10" fill="rgba(255,255,255,.3)" font-style="italic">Technik · Stauraum</text>
+
+      <!-- GLASBALKON OG SÜD -->
+      <rect x="30" y="388" width="660" height="35" fill="rgba(135,200,255,.07)" stroke="rgba(135,200,255,.3)" stroke-width="1"/>
+      <text x="360" y="410" text-anchor="middle" font-family="Lato,sans-serif" font-size="9" fill="rgba(135,200,255,.7)" font-weight="700" letter-spacing="1.5">GLASBALKON OG · 30 m² · BLICK ZERMATT · 4000ER</text>
+
+      <!-- Compass -->
+      <text x="700" y="45" text-anchor="middle" font-family="Lato,sans-serif" font-size="8" font-weight="700" fill="rgba(201,168,76,.6)">N</text>
+      <line x1="700" y1="48" x2="700" y2="64" stroke="rgba(201,168,76,.4)" stroke-width="1.2"/>
+      <text x="700" y="74" text-anchor="middle" font-family="Lato,sans-serif" font-size="8" fill="rgba(255,255,255,.25)">S</text>
+    </svg>
+    </div>
+
+    <!-- Legend -->
+    <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-top:1rem;padding-top:1rem;border-top:.5px solid rgba(255,255,255,.06)" class="reveal">
+      <div style="display:flex;align-items:center;gap:5px;font-size:.65rem;color:rgba(255,255,255,.45)"><div style="width:12px;height:12px;border-radius:2px;background:rgba(61,107,224,.4)"></div>Schlafzimmer</div>
+      <div style="display:flex;align-items:center;gap:5px;font-size:.65rem;color:rgba(255,255,255,.45)"><div style="width:12px;height:12px;border-radius:2px;background:rgba(201,168,76,.4)"></div>Sauna · Wellness</div>
+      <div style="display:flex;align-items:center;gap:5px;font-size:.65rem;color:rgba(255,255,255,.45)"><div style="width:12px;height:12px;border-radius:2px;background:rgba(74,124,78,.4)"></div>Wohnen</div>
+      <div style="display:flex;align-items:center;gap:5px;font-size:.65rem;color:rgba(255,255,255,.45)"><div style="width:12px;height:12px;border-radius:2px;background:rgba(138,92,240,.4)"></div>Bad · WC</div>
+      <div style="display:flex;align-items:center;gap:5px;font-size:.65rem;color:rgba(255,255,255,.45)"><div style="width:12px;height:12px;border-radius:2px;background:rgba(201,168,76,.2);border:1px dashed rgba(201,168,76,.5)"></div>Terrasse · Balkon</div>
+    </div>
+
+    <!-- Floor switcher JS -->
+    <script>
+    function showFloor(f){
+      document.getElementById('floor-eg').style.display=f==='eg'?'block':'none';
+      document.getElementById('floor-og').style.display=f==='og'?'block':'none';
+      const eg=document.getElementById('gr-tab-eg');
+      const og=document.getElementById('gr-tab-og');
+      if(f==='eg'){eg.style.background='rgba(201,168,76,.12)';eg.style.borderBottomColor='var(--gold)';eg.style.color='var(--gold)';og.style.background='none';og.style.borderBottomColor='transparent';og.style.color='rgba(255,255,255,.35)';}
+      else{og.style.background='rgba(201,168,76,.12)';og.style.borderBottomColor='var(--gold)';og.style.color='var(--gold)';eg.style.background='none';eg.style.borderBottomColor='transparent';eg.style.color='rgba(255,255,255,.35)';}
+    }
+    </script>
+
+
