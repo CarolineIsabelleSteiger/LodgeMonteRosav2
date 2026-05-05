@@ -857,23 +857,8 @@ footer{
         <span class="rev-sub">Kommunikation <b style="color:var(--gl)">4.9</b></span>
       </div>
     </div>
-    <div class="rev-grid">
-      <div class="rev-card">
-        <div class="rev-top"><div class="rev-av" style="background:linear-gradient(135deg,#4a7c4e,#1e3a22)">C</div><div><div class="rev-name">Christian</div><div class="rev-date">Cham · Gruppenreise · 2025</div></div><span style="margin-left:auto;color:var(--gold);font-size:.72rem">★★★★★</span></div>
-        <p class="rev-text">«Das Chalet ist traumhaft gelegen. Sonne bis 18:30, angenehme Temperaturen auf der Terrasse und absolute Ruhe.»</p>
-      </div>
-      <div class="rev-card">
-        <div class="rev-top"><div class="rev-av" style="background:linear-gradient(135deg,#3d6be0,#1a2f8a)">A</div><div><div class="rev-name">Anna</div><div class="rev-date">Januar 2026</div></div><span style="margin-left:auto;color:var(--gold);font-size:.72rem">★★★★★</span></div>
-        <p class="rev-text">«Alles war makellos. Die Aussicht atemberaubend — das Chalet hat den Charme der Schweiz wirklich eingefangen.»</p>
-      </div>
-      <div class="rev-card">
-        <div class="rev-top"><div class="rev-av" style="background:linear-gradient(135deg,#c9a84c,#7a6020)">D</div><div><div class="rev-name">Denis</div><div class="rev-date">August 2025</div></div><span style="margin-left:auto;color:var(--gold);font-size:.72rem">★★★★★</span></div>
-        <p class="rev-text">«Alle Annehmlichkeiten mit einer sehr coolen Sauna. Bergblick (und die Schafe 😉) herrlich. Caroline ist cool!»</p>
-      </div>
-      <div class="rev-card" style="border-right:none">
-        <div class="rev-top"><div class="rev-av" style="background:linear-gradient(135deg,#e84393,#8a1a4a)">R</div><div><div class="rev-name">Romain</div><div class="rev-date">Juli 2025</div></div><span style="margin-left:auto;color:var(--gold);font-size:.72rem">★★★★★</span></div>
-        <p class="rev-text">«Alles von hoher Qualität — Küche, Zimmer, Sauna. Sehr ruhig, atemberaubende Aussicht!»</p>
-      </div>
+    <div class="rev-grid" id="rev-grid">
+      <!-- Reviews rendered by JS based on language -->
     </div>
   </div>
 </section>
@@ -1957,8 +1942,72 @@ function setLang(l){
   }
   // Update chat placeholder
   const inp=document.getElementById('chat-in');
-  const placeholders={de:'Stellen Sie Ihre Frage...',en:'Ask your question...',fr:'Posez votre question...'};
+  const placeholders={
+    de:'Stellen Sie Ihre Frage...',
+    en:'Ask your question...',
+    fr:'Posez votre question...',
+    nl:'Stel uw vraag...'
+  };
   if(inp) inp.placeholder=placeholders[l]||placeholders.de;
+
+  // Update all hero content (appears in both map-drone and photo-drone)
+  const heroTranslations = {
+    de:{eye:'Grächen · Wallis · Schweiz · 1617 m ü.M.',tag:'Your Luxury Alpine Escape',btn1:'✉ Jetzt anfragen',btn2:'📸 Galerie',btn3:'🎬 Video'},
+    en:{eye:'Grächen · Wallis · Switzerland · 1617 m a.s.l.',tag:'Your Luxury Alpine Escape',btn1:'✉ Enquire now',btn2:'📸 Gallery',btn3:'🎬 Video'},
+    fr:{eye:'Grächen · Valais · Suisse · 1617 m alt.',tag:'Votre Escapade Alpine de Luxe',btn1:'✉ Demander',btn2:'📸 Galerie',btn3:'🎬 Vidéo'},
+    nl:{eye:'Grächen · Wallis · Zwitserland · 1617 m',tag:'Uw Luxe Alpine Escape',btn1:'✉ Nu aanvragen',btn2:'📸 Galerij',btn3:'🎬 Video'}
+  };
+  const ht = heroTranslations[l]||heroTranslations.de;
+
+  // Update section titles  
+  const sectionTranslations = {
+    de:{galTitle:'Die Lodge von innen & aussen',umbTitle:'7 Erlebnisse rundum',bookTitle:'Verfügbarkeit & Preise',svcTitle:'Alles was Sie brauchen',grTitle:'Grundriss Lodge Monte Rosa'},
+    en:{galTitle:'Inside & outside the Lodge',umbTitle:'7 experiences nearby',bookTitle:'Availability & Prices',svcTitle:'Everything you need',grTitle:'Floor Plan Lodge Monte Rosa'},
+    fr:{galTitle:'Le Lodge intérieur & extérieur',umbTitle:'7 expériences alentour',bookTitle:'Disponibilité & Tarifs',svcTitle:'Tout ce dont vous avez besoin',grTitle:'Plan Lodge Monte Rosa'},
+    nl:{galTitle:'Het Lodge van binnen & buiten',umbTitle:'7 ervaringen rondom',bookTitle:'Beschikbaarheid & Prijzen',svcTitle:'Alles wat u nodig heeft',grTitle:'Plattegrond Lodge Monte Rosa'}
+  };
+  const st = sectionTranslations[l]||sectionTranslations.de;
+
+  // Apply hero translations to all .h-eye and .h-tag elements
+  document.querySelectorAll('.h-eye').forEach(el=>el.textContent=ht.eye);
+  document.querySelectorAll('.h-tag').forEach(el=>el.textContent=ht.tag);
+
+  // Apply section title translations
+  const secTitles = document.querySelectorAll('.sec-title');
+  const titleMap = [st.galTitle, st.umbTitle, st.bookTitle, st.svcTitle, st.grTitle];
+  secTitles.forEach((el,i)=>{ if(titleMap[i]) el.innerHTML=titleMap[i]; });
+
+  // Update booking section labels
+  const bookLabels = {
+    de:{direct:'Direktbuchung',sub:'Ohne Plattformgebühren — persönlich. Antwort innerhalb weniger Stunden.',platform:'Sofort buchen via Plattform',orDirect:'ODER DIREKT',cancel:'Stornierung'},
+    en:{direct:'Direct Booking',sub:'No platform fees — personal service. Reply within hours.',platform:'Book now via platform',orDirect:'OR DIRECT',cancel:'Cancellation'},
+    fr:{direct:'Réservation directe',sub:'Sans frais de plateforme. Réponse rapide.',platform:'Réserver via plateforme',orDirect:'OU DIRECTEMENT',cancel:'Annulation'},
+    nl:{direct:'Directe boeking',sub:'Geen platformkosten — persoonlijk. Reactie binnen enkele uren.',platform:'Nu boeken via platform',orDirect:'OF DIRECT',cancel:'Annulering'}
+  };
+
+  // Update storno labels dynamically
+  const stGood = document.querySelector('.storno strong.g');
+  const stBad  = document.querySelector('.storno strong.r');
+  const storno = {
+    de:{good:'100% Rückerstattung',bad:'Keine Rückerstattung'},
+    en:{good:'Full refund',bad:'No refund'},
+    fr:{good:'Remboursement complet',bad:'Aucun remboursement'},
+    nl:{good:'Volledige terugbetaling',bad:'Geen terugbetaling'}
+  };
+  const sv = storno[l]||storno.de;
+  if(stGood) stGood.textContent=sv.good;
+  if(stBad)  stBad.textContent=sv.bad;
+
+  // Update ALPA chat suggestions
+  const sugTranslations = {
+    de:['Check-in / Check-out','Sauna Bedienung','Parkplatz & Anreise','Preise','Verfügbarkeit','Restaurants Grächen','Bettwäsche','Stornierung'],
+    en:['Check-in / Check-out','Sauna operation','Parking & Arrival','Prices','Availability','Restaurants','Linen & Towels','Cancellation'],
+    fr:['Check-in / Check-out','Utilisation sauna','Parking & Arrivée','Prix','Disponibilité','Restaurants','Linge','Annulation'],
+    nl:['Check-in / Check-out','Sauna gebruik','Parkeren & Aankomst','Prijzen','Beschikbaarheid','Restaurants','Beddengoed','Annulering']
+  };
+  const sugs = document.querySelectorAll('.chat-sug');
+  const sugArr = sugTranslations[l]||sugTranslations.de;
+  sugs.forEach((s,i)=>{ if(sugArr[i]) s.textContent=sugArr[i]; });
 }
 
 // ── ACTIVITIES SEASON ───────────────────────────
